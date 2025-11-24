@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
+                 script-src 'self'; 
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                 font-src 'self' https://fonts.gstatic.com;
+                 img-src 'self' data:;
+                 connect-src 'self';">
+  <meta name="description" content="Mascarin Consulting - Stratégie, Innovation et Performance pour votre entreprise.">
+  <title>Mascarin Consulting</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="app">
+    <header class="header" id="header">
+      <div class="container header-container">
+        <a href="#" class="logo"><img src="./public/mascarin-logo.png" alt="Mascarin Consulting" class="logo-img"></a>
+        <nav class="nav" id="nav">
+          <ul class="nav-list">
+            <li><a href="#home" class="nav-link active">Accueil</a></li>
+            <li><a href="#services" class="nav-link">Services</a></li>
+            <li><a href="#about" class="nav-link">À Propos</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+          </ul>
+          <button class="btn-primary nav-cta">Prendre RDV</button>
+        </nav>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
+          <span class="hamburger"></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+          <h1 class="hero-title fade-in">L'Expertise Sanitaire <br>& Médico-Sociale</h1>
+          <p class="hero-subtitle fade-in delay-1">Mascarin Consulting accompagne les structures sanitaires, sociales et
+            médico-sociales dans le pilotage et le déploiement de leurs projets.</p>
+          <div class="hero-actions fade-in delay-2">
+            <a href="#services" class="btn-primary">Nos Services</a>
+            <a href="#contact" class="btn-secondary">Contactez-nous</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" class="section services">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Nos Domaines d'Intervention</h2>
+            <p class="section-subtitle">Formation et Prestations de Conseil sur-mesure.</p>
+          </div>
+
+          <h3 style="text-align:center; margin-bottom:30px; font-family:var(--font-heading); color:var(--secondary);">
+            Formations</h3>
+          <div class="services-grid" style="margin-bottom: 60px;">
+            <div class="service-card fade-in-up">
+              <div class="service-icon">🎓</div>
+              <h3>Gestion & Conduite de Projet</h3>
+              <p>Maîtriser le déploiement de projets stratégiques et opérationnels.</p>
+            </div>
+            <div class="service-card fade-in-up delay-1">
+              <div class="service-icon">⚖️</div>
+              <h3>Cadre Juridique & Ethique</h3>
+              <p>Soins palliatifs, fin de vie, personne de confiance, directives anticipées et démarche éthique.</p>
+            </div>
+            <div class="service-card fade-in-up delay-2">
+              <div class="service-icon">🛡️</div>
+              <h3>Qualité & Bientraitance</h3>
+              <p>Prévention de la maltraitance, promotion de la bientraitance et évaluation de la qualité (ESSMS).</p>
+            </div>
+          </div>
+
+          <h3 style="text-align:center; margin-bottom:30px; font-family:var(--font-heading); color:var(--secondary);">
+            Prestations & Conseil</h3>
+          <div class="services-grid">
+            <div class="service-card fade-in-up">
+              <div class="service-icon">📋</div>
+              <h3>Autorisations & Appels à Projets</h3>
+              <p>Assistance aux dossiers de demandes d'autorisation (soins, équipements) et réponse aux appels à
+                projets.</p>
+            </div>
+            <div class="service-card fade-in-up delay-1">
+              <div class="service-icon">🤝</div>
+              <h3>Coopération & Stratégie</h3>
+              <p>Mise en place de structures de coopération (GCS, GIE) et démarches stratégiques (Projets
+                d'établissement).</p>
+            </div>
+            <div class="service-card fade-in-up delay-2">
+              <div class="service-icon">👔</div>
+              <h3>Management de Transition</h3>
+              <p>Appui aux structures et accompagnement à l'évaluation de la qualité.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="section about">
+        <div class="container about-container">
+          <div class="about-image fade-in-left">
+            <div class="img-placeholder"></div>
+          </div>
+          <div class="about-content fade-in-right">
+            <h2 class="section-title">Christian ABONNEL</h2>
+            <h4 style="color:var(--secondary); margin-bottom:20px;">Fondateur & Expert Consultant</h4>
+            <p>Après plus de 40 années d'exercice professionnel dans les secteurs sanitaire et médico-social, dont 12
+              années de coopération internationale, je mets mon savoir expérientiel à votre service.</p>
+            <p>Ancien Directeur-Adjoint du CHOR & de l'EPSMR et Expert Technique International, j'ai fondé Mascarin
+              Consulting en 2023 avec une ambition : vous accompagner avec professionnalisme, engagement et implication.
+            </p>
+            <div class="stats">
+              <div class="stat-item">
+                <span class="stat-number">40+</span>
+                <span class="stat-label">Années d'expérience</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number">2023</span>
+                <span class="stat-label">Fondation</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="section contact">
+        <div class="container">
+          <div class="contact-wrapper">
+            <div class="contact-info fade-in-left">
+              <h2 class="section-title">Contactez-nous</h2>
+              <p>Pour vos besoins en formation, appui-conseil, études ou management de transition.</p>
+              <ul class="contact-list">
+                <li>👤 Christian ABONNEL</li>
+                <li>📍 La Réunion / Océan Indien / International</li>
+                <li>📧 mascarinconsulting@outlook.fr</li>
+                <li>📱 0692 74 30 40</li>
+              </ul>
+            </div>
+            <form class="contact-form fade-in-right" id="contact-form">
+              <div class="form-group">
+                <label for="name">Nom complet</label>
+                <input type="text" id="name" placeholder="Votre nom">
+              </div>
+              <div class="form-group">
+                <label for="email">Email professionnel</label>
+                <input type="email" id="email" placeholder="votre@email.com">
+              </div>
+              <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" rows="4" placeholder="Comment pouvons-nous vous aider ?"></textarea>
+              </div>
+              <button type="submit" class="btn-primary full-width">Envoyer</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-content">
+        <div class="footer-col">
+          <a href="#" class="logo footer-logo"><img src="./public/mascarin-logo.png" alt="Mascarin Consulting"
+              class="logo-img"></a>
+          <p>Partenaire de votre réussite.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Liens</h4>
+          <ul>
+            <li><a href="#home">Accueil</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#about">À Propos</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Légal</h4>
+          <ul>
+            <li>
+              <a href="javascript:void(0)" id="legal-link"
+                onclick="const el = document.getElementById('legal-content'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">Mentions
+                légales</a>
+              <div id="legal-content" style="display: none; font-size: 0.8em; margin-top: 5px; color: #ccc;">
+                <p style="margin: 2px 0;"><strong>Mascarin Consulting</strong></p>
+                <p style="margin: 2px 0;">RCS : 953 401 874</p>
+                <p style="margin: 2px 0;">SIRET : 953 401 874 00011</p>
+              </div>
+            </li>
+            <li><a href="#">Confidentialité</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Mascarin Consulting. Tous droits réservés.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Admin Panel Container (injected dynamically) -->
+  <div id="admin-container"></div>
+
+  <script type="module" src="./js/main.js"></script>
+  <!-- <script type="module" src="./js/admin.js"></script> -->
+
+
+
+  <!-- Appointment Request Modal -->
+  <div id="rdv-modal" class="modal-overlay">
+    <div class="modal-content-rdv">
+      <form id="rdv-form" class="rdv-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rdv-name">Nom complet *</label>
+            <input type="text" id="rdv-name" required placeholder="Votre nom">
+          </div>
+          <div class="form-group">
+            <label for="rdv-email">Email *</label>
+            <input type="email" id="rdv-email" required placeholder="votre@email.com">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rdv-phone">Téléphone *</label>
+            <input type="tel" id="rdv-phone" required placeholder="0692 XX XX XX">
+          </div>
+          <div class="form-group">
+            <label for="rdv-service">Type de service *</label>
+            <select id="rdv-service" required>
+              <option value="">-- Choisir --</option>
+              <option value="formation">Formation</option>
+              <option value="conseil">Conseil</option>
+              <option value="audit">Audit</option>
+              <option value="management">Management de transition</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rdv-date">Date souhaitée *</label>
+            <input type="date" id="rdv-date" required>
+          </div>
+          <div class="form-group">
+            <label for="rdv-time">Heure souhaitée *</label>
+            <input type="time" id="rdv-time" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="rdv-message">Message</label>
+          <textarea id="rdv-message" rows="4" placeholder="Décrivez brièvement votre besoin..."></textarea>
+        </div>
+
+        <div class="modal-footer-rdv">
+          <button type="button" class="btn-secondary" id="cancel-rdv">Annuler</button>
+          <button type="submit" class="btn-primary">Envoyer la demande</button>
+        </div>
+      </form>
+
+      <div id="rdv-success" class="rdv-success" style="display: none;">
+        <div class="success-icon">✅</div>
+        <h3>Demande envoyée !</h3>
+        <p>Nous vous contacterons dans les plus brefs délais.</p>
+        <button class="btn-primary" id="close-success">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>

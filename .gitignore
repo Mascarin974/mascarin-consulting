@@ -1,0 +1,14 @@
+# System
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs & Temp
+*.log
+*.tmp
+*.bak
+node_modules/
