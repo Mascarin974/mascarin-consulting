@@ -75,6 +75,12 @@ function setupEventListeners() {
   document.getElementById('search-appointments').addEventListener('input', renderAppointmentsTable);
 
   document.getElementById('client-form').addEventListener('submit', handleClientSubmit);
+  
+  // Invoice form
+  const invoiceForm = document.getElementById('invoice-form');
+  if (invoiceForm) {
+    invoiceForm.addEventListener('submit', handleInvoiceSubmit);
+  }
 
   // Confirmation Modal
   const confirmBtn = document.getElementById('confirm-action-btn');
@@ -776,12 +782,17 @@ function updateInvoiceNumberPrefix() {
   const type = document.getElementById('invoice-type').value;
   const prefix = type === 'invoice' ? 'FAC' : 'DEV';
   const date = new Date();
+  
+  // Format: DDMMYYYY
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
+  const dateStr = `${day}${month}${year}`; // ex: 25112025
 
-  // Find last number for this year and type
+  // Find last number for this date and type
   const existingDocs = invoices.filter(i =>
     i.type === type &&
-    i.number.startsWith(`${prefix} -${year} -`)
+    i.number.startsWith(`${prefix}-${dateStr}-`)
   );
 
   let nextSeq = 1;
@@ -794,7 +805,7 @@ function updateInvoiceNumberPrefix() {
   }
 
   const sequence = nextSeq.toString().padStart(3, '0');
-  document.getElementById('invoice-number').value = `${prefix} -${year} -${sequence} `;
+  document.getElementById('invoice-number').value = `${prefix}-${dateStr}-${sequence}`;
 }
 
 function addInvoiceItem(item = null) {
