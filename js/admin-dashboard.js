@@ -75,7 +75,7 @@ function setupEventListeners() {
   document.getElementById('search-appointments').addEventListener('input', renderAppointmentsTable);
 
   document.getElementById('client-form').addEventListener('submit', handleClientSubmit);
-  
+
   // Invoice form
   const invoiceForm = document.getElementById('invoice-form');
   if (invoiceForm) {
@@ -122,16 +122,32 @@ function handleLogout() {
 function handleAppointmentSubmit(e) {
   e.preventDefault();
 
+  const clientSelect = document.getElementById('client-select');
+  let clientName, clientEmail, clientPhone;
+
+  if (clientSelect && clientSelect.value) {
+    const selectedOption = clientSelect.options[clientSelect.selectedIndex];
+    clientName = selectedOption.text;
+    clientEmail = selectedOption.dataset.email || '';
+    clientPhone = selectedOption.dataset.phone || '';
+  } else {
+    // Fallback if manual entry is allowed or for legacy support
+    clientName = document.getElementById('client-name') ? document.getElementById('client-name').value : '';
+    clientEmail = document.getElementById('client-email') ? document.getElementById('client-email').value : '';
+    clientPhone = document.getElementById('client-phone') ? document.getElementById('client-phone').value : '';
+  }
+
   const formData = {
-    clientName: document.getElementById('client-name').value,
-    clientEmail: document.getElementById('client-email').value,
-    clientPhone: document.getElementById('client-phone').value,
-    location: document.getElementById('appointment-location').value,
-    serviceType: document.getElementById('service-type').value,
+    clientName: clientName,
+    clientEmail: clientEmail,
+    clientPhone: clientPhone,
+    clientId: clientSelect ? clientSelect.value : null,
+    location: document.getElementById('appointment-location') ? document.getElementById('appointment-location').value : '',
+    serviceType: document.getElementById('appointment-type').value,
     date: document.getElementById('appointment-date').value,
     time: document.getElementById('appointment-time').value,
-    duration: document.getElementById('appointment-duration').value,
-    status: document.getElementById('appointment-status').value,
+    duration: document.getElementById('appointment-duration') ? document.getElementById('appointment-duration').value : '60',
+    status: document.getElementById('appointment-status') ? document.getElementById('appointment-status').value : 'pending',
     notes: document.getElementById('appointment-notes').value
   };
 
@@ -158,6 +174,27 @@ function handleAppointmentSubmit(e) {
   editingAppointmentId = null;
 }
 
+function showNewAppointmentModal() {
+  editingAppointmentId = null;
+  document.getElementById('modal-title').textContent = 'Nouveau Rendez-vous';
+  document.getElementById('appointment-form').reset();
+
+  // Set default date/time
+  const now = new Date();
+  document.getElementById('appointment-date').valueAsDate = now;
+  document.getElementById('appointment-time').value = "09:00";
+
+  // Defaults
+  if (document.getElementById('appointment-duration')) document.getElementById('appointment-duration').value = "60";
+  if (document.getElementById('appointment-status')) document.getElementById('appointment-status').value = "pending";
+
+  if (typeof updateClientSelect === 'function') {
+    updateClientSelect();
+  }
+
+  document.getElementById('appointment-modal').classList.add('active');
+}
+
 function editAppointment(id) {
   const apt = appointments.find(a => a.id === id);
   if (!apt) return;
@@ -165,11 +202,15 @@ function editAppointment(id) {
   editingAppointmentId = id;
   document.getElementById('modal-title').textContent = 'Modifier le rendez-vous';
 
-  document.getElementById('client-name').value = apt.clientName;
-  document.getElementById('client-email').value = apt.clientEmail || '';
-  document.getElementById('client-phone').value = apt.clientPhone || '';
-  document.getElementById('appointment-location').value = apt.location || '';
-  document.getElementById('service-type').value = apt.serviceType;
+  if (typeof updateClientSelect === 'function') {
+    updateClientSelect();
+  }
+
+  if (document.getElementById('client-select')) {
+    document.getElementById('client-select').value = apt.clientId || '';
+  }
+  if (document.getElementById('appointment-location')) document.getElementById('appointment-location').value = apt.location || '';
+  document.getElementById('appointment-type').value = apt.serviceType;
   document.getElementById('appointment-date').value = apt.date;
   document.getElementById('appointment-time').value = apt.time;
   document.getElementById('appointment-duration').value = apt.duration;
@@ -408,11 +449,11 @@ function closeDayModal() {
 }
 
 function addAppointmentForDay() {
+  closeDayModal();
+  showNewAppointmentModal();
   if (currentSelectedDate) {
     document.getElementById('appointment-date').value = currentSelectedDate;
   }
-  closeDayModal();
-  showNewAppointmentModal();
 }
 
 // Appointments Table
@@ -653,6 +694,7 @@ window.closeDayModal = closeDayModal;
 window.addAppointmentForDay = addAppointmentForDay;
 window.deleteAppointmentFromDay = deleteAppointmentFromDay;
 window.closeConfirmationModal = closeConfirmationModal;
+window.showNewAppointmentModal = showNewAppointmentModal;
 
 // Debug: Log loaded functions
 console.log('Admin Dashboard Script Loaded');
@@ -769,6 +811,10 @@ function showNewInvoiceModal() {
   addInvoiceItem(); // Add one empty line
   calculateInvoiceTotal();
 
+  if (typeof updateInvoiceClientSelect === 'function') {
+    updateInvoiceClientSelect();
+  }
+
   document.getElementById('invoice-modal').classList.add('active');
 }
 
@@ -782,7 +828,7 @@ function updateInvoiceNumberPrefix() {
   const type = document.getElementById('invoice-type').value;
   const prefix = type === 'invoice' ? 'FAC' : 'DEV';
   const date = new Date();
-  
+
   // Format: DDMMYYYY
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -864,7 +910,8 @@ function handleInvoiceSubmit(e) {
     type: document.getElementById('invoice-type').value,
     number: document.getElementById('invoice-number').value,
     status: document.getElementById('invoice-status').value,
-    clientName: document.getElementById('invoice-client-name').value,
+    clientName: document.getElementById('invoice-client-select').options[document.getElementById('invoice-client-select').selectedIndex].text,
+    clientId: document.getElementById('invoice-client-select').value,
     clientEmail: document.getElementById('invoice-client-email').value,
     date: document.getElementById('invoice-date').value,
     dueDate: document.getElementById('invoice-due-date').value,
@@ -900,7 +947,20 @@ function editInvoice(id) {
   document.getElementById('invoice-type').value = inv.type;
   document.getElementById('invoice-number').value = inv.number;
   document.getElementById('invoice-status').value = inv.status;
-  document.getElementById('invoice-client-name').value = inv.clientName;
+  document.getElementById('invoice-status').value = inv.status;
+
+  if (typeof updateInvoiceClientSelect === 'function') {
+    updateInvoiceClientSelect();
+  }
+
+  if (document.getElementById('invoice-client-select')) {
+    document.getElementById('invoice-client-select').value = inv.clientId || '';
+    // If client ID is missing (legacy data), try to match by name or keep empty
+    if (!inv.clientId && inv.clientName) {
+      // Optional: logic to find client by name could go here
+    }
+  }
+
   document.getElementById('invoice-client-email').value = inv.clientEmail || '';
   document.getElementById('invoice-date').value = inv.date;
   document.getElementById('invoice-due-date').value = inv.dueDate;
@@ -912,6 +972,36 @@ function editInvoice(id) {
 
   document.getElementById('invoice-modal').classList.add('active');
 }
+
+function updateInvoiceClientSelect() {
+  const select = document.getElementById('invoice-client-select');
+  if (!select) return;
+
+  const currentValue = select.value;
+
+  select.innerHTML = '<option value="">Sélectionner un client...</option>' +
+    clients.map(c => `<option value="${c.id}" data-email="${c.email || ''}">${c.name}</option>`).join('');
+
+  if (currentValue) {
+    select.value = currentValue;
+  }
+}
+
+function handleInvoiceClientChange() {
+  const select = document.getElementById('invoice-client-select');
+  const emailInput = document.getElementById('invoice-client-email');
+
+  if (select && select.selectedIndex > 0) {
+    const option = select.options[select.selectedIndex];
+    if (emailInput) emailInput.value = option.dataset.email || '';
+  } else {
+    if (emailInput) emailInput.value = '';
+  }
+}
+
+// Expose new functions
+window.updateInvoiceClientSelect = updateInvoiceClientSelect;
+window.handleInvoiceClientChange = handleInvoiceClientChange;
 
 function deleteInvoice(id) {
   if (!confirm('Supprimer ce document ?')) return;
@@ -972,6 +1062,23 @@ function renderClients() {
       ${client.notes ? `<div style="margin-top: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px; font-size: 0.9em;"><strong>Notes:</strong> ${client.notes}</div>` : ''}
     </div >
     `).join('');
+
+  // Also update the select dropdown in appointment modal
+  updateClientSelect();
+}
+
+function updateClientSelect() {
+  const select = document.getElementById('client-select');
+  if (!select) return;
+
+  const currentValue = select.value;
+
+  select.innerHTML = '<option value="">Sélectionner un client...</option>' +
+    clients.map(c => `<option value="${c.id}" data-email="${c.email || ''}" data-phone="${c.phone || ''}">${c.name}</option>`).join('');
+
+  if (currentValue) {
+    select.value = currentValue;
+  }
 }
 
 function showNewClientModal() {
