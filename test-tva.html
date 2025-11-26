@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test TVA Display</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 2px solid #333; }
+    </style>
+</head>
+<body>
+    <h1>Test Affichage TVA - Mascarin Consulting</h1>
+    
+    <div class="test">
+        <h2>Test Direct</h2>
+        <p>Sous-total HT: <strong id="test-subtotal">100.00 €</strong></p>
+        <p>TVA (8,5%): <strong id="test-tva">8.50 €</strong></p>
+        <p>Total TTC: <strong id="test-total">108.50 €</strong></p>
+    </div>
+    
+    <div class="test">
+        <h2>État des éléments dans admin-dashboard.html</h2>
+        <ul>
+            <li>✅ Modale existe (ligne 829)</li>
+            <li>✅ invoice-subtotal (ligne 903)</li>
+            <li>✅ invoice-tva (ligne 907)</li>
+            <li>✅ invoice-total (ligne 911)</li>
+            <li>✅ JavaScript calculate fonction exists</li>
+        </ul>
+    </div>
+    
+    <div class="test">
+        <h2>Instructions</h2>
+        <p><strong>1.</strong> Ouvrez DevTools (F12)</p>
+        <p><strong>2.</strong> Allez dans Application → Clear storage → Clear site data</p>
+        <p><strong>3.</strong> Fermez COMPLÈTEMENT le navigateur</p>
+        <p><strong>4.</strong> Rouvrez et testez : <a href="http://localhost:8000/mascarin-v2/admin-dashboard.html" target="_blank">Admin Dashboard</a></p>
+        <p><strong>5.</strong> OU utilisez navigation privée (Ctrl+Shift+N)</p>
+    </div>
+    
+    <script>
+        console.log('✅ Test file loaded');
+        console.log('Elements found:');
+        console.log('- test-subtotal:', document.getElementById('test-subtotal'));
+        console.log('- test-tva:', document.getElementById('test-tva'));
+        console.log('- test-total:', document.getElementById('test-total'));
+    </script>
+</body>
+</html>

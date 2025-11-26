@@ -79,10 +79,12 @@
                     <a href="#" class="nav-item" onclick="switchView('requests'); return false;" data-view="requests">
                         <span class="nav-icon">📩</span>
                         <span>Demandes</span>
+                        <span id="requests-badge" class="badge" style="display:none">0</span>
                     </a>
                     <a href="#" class="nav-item" onclick="switchView('contacts'); return false;" data-view="contacts">
                         <span class="nav-icon">💬</span>
                         <span>Messages</span>
+                        <span id="contacts-badge" class="badge" style="display:none">0</span>
                     </a>
                     <a href="#" class="nav-item" onclick="switchView('backup'); return false;" data-view="backup">
                         <span class="nav-icon">💾</span>
@@ -638,6 +640,14 @@
     <script src="./js/csrf-protection.js"></script>
     <script src="./js/monitoring.js"></script>
     <script src="./js/security-init.js"></script>
+
+    <!-- Global Reset Button (Always Visible) -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+        <button onclick="resetApp()"
+            style="background: rgba(255, 255, 255, 0.9); border: 1px solid #ccc; padding: 10px 15px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px; color: #333;">
+            ⚠️ Problème d'affichage ? Réinitialiser
+        </button>
+    </div>
 
     <!-- Application Scripts -->
     <script src="./js/backup-restore.js?v=10"></script>

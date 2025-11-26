@@ -16,8 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
   loadAppointments();
   loadInvoices();
   loadClients();
+  loadRequests();
+  loadContacts();
   setupEventListeners();
   setupRealtimeListeners();
+
+  // Refresh badges periodically to detect changes in localStorage
+  setInterval(() => {
+    updateBadges();
+  }, 2000); // Update every 2 seconds
 });
 
 // Authentication
@@ -37,9 +44,23 @@ function showLogin() {
 }
 
 function showDashboard() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'flex';
-  updateDashboard();
+  try {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'flex';
+    updateDashboard();
+  } catch (error) {
+    console.error('Error showing dashboard:', error);
+    alert('Une erreur est survenue lors du chargement du tableau de bord: ' + error.message);
+  }
+}
+
+// Emergency Reset Function
+function resetApp() {
+  if (confirm('Attention : Cela va effacer toutes les données locales et vous déconnecter. Voulez-vous continuer ?')) {
+    localStorage.clear();
+    sessionStorage.clear();
+    location.reload();
+  }
 }
 
 // Event Listeners
@@ -257,6 +278,7 @@ function switchView(view) {
 // Update Dashboard
 function updateDashboard() {
   updateStats();
+  updateBadges();
   renderRecentAppointments();
   if (currentView === 'calendar') renderCalendar();
   if (currentView === 'appointments') renderAppointmentsTable();
@@ -264,6 +286,25 @@ function updateDashboard() {
   if (currentView === 'invoices') renderInvoicesTable();
   if (currentView === 'requests') renderRequests();
   if (currentView === 'contacts') renderContacts();
+}
+
+function updateBadges() {
+  // Requests Badge
+  const pendingRequests = requests.filter(r => r.status === 'pending').length;
+  const requestsBadge = document.getElementById('requests-badge');
+  if (requestsBadge) {
+    requestsBadge.textContent = pendingRequests;
+    requestsBadge.style.display = pendingRequests > 0 ? 'inline-block' : 'none';
+  }
+
+  // Contacts Badge
+  const contactsData = JSON.parse(localStorage.getItem('mascarinContacts') || '[]');
+  const unreadContacts = contactsData.filter(c => c.status === 'unread').length;
+  const contactsBadge = document.getElementById('contacts-badge');
+  if (contactsBadge) {
+    contactsBadge.textContent = unreadContacts;
+    contactsBadge.style.display = unreadContacts > 0 ? 'inline-block' : 'none';
+  }
 }
 
 // Stats
@@ -1169,7 +1210,7 @@ function saveRequests() {
 }
 
 function renderRequests() {
-  const container = document.getElementById('pending-requests');
+  const container = document.getElementById('requests-list');
   if (!container) return;
 
   if (requests.length === 0) {

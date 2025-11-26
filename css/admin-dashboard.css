@@ -1036,3 +1036,16 @@ body {
     justify-content: flex-end;
     gap: 12px;
 }
+
+/* Badge for notifications */
+.badge {
+    background-color: var(--danger);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    min-width: 18px;
+    text-align: center;
+}

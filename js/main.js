@@ -74,13 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let contacts = [];
       try {
-        contacts = JSON.parse(localStorage.getItem('mascarinContactRequests') || '[]');
+        contacts = JSON.parse(localStorage.getItem('mascarinContacts') || '[]');
       } catch (e) {
         contacts = [];
       }
 
       contacts.push(request);
-      localStorage.setItem('mascarinContactRequests', JSON.stringify(contacts));
+      localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
 
       alert('✅ Votre message a bien été envoyé !');
       contactForm.reset();
