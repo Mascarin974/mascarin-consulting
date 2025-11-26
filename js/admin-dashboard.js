@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupRealtimeListeners();
 
   // Refresh badges periodically to detect changes in localStorage
-  setInterval(() => {
+  badgeInterval = setInterval(() => {
     updateBadges();
   }, 2000); // Update every 2 seconds
 });
@@ -65,6 +65,7 @@ function resetApp() {
 
 // Event Listeners
 function setupEventListeners() {
+  console.log('DEBUG: setupEventListeners called');
   // Login form
   document.getElementById('login-form').addEventListener('submit', handleLogin);
 
@@ -243,6 +244,7 @@ function editAppointment(id) {
 
 // Navigation
 function switchView(view) {
+  console.log('DEBUG: switchView called for:', view);
   currentView = view;
 
   // Update nav items
@@ -283,13 +285,7 @@ function updateDashboard() {
   if (currentView === 'calendar') renderCalendar();
   if (currentView === 'appointments') renderAppointmentsTable();
   if (currentView === 'clients') renderClients();
-  if (currentView === 'invoices') renderInvoicesTable();
-  if (currentView === 'requests') renderRequests();
   if (currentView === 'contacts') renderContacts();
-}
-
-function updateBadges() {
-  // Requests Badge
   const pendingRequests = requests.filter(r => r.status === 'pending').length;
   const requestsBadge = document.getElementById('requests-badge');
   if (requestsBadge) {
@@ -298,7 +294,21 @@ function updateBadges() {
   }
 
   // Contacts Badge
-  const contactsData = JSON.parse(localStorage.getItem('mascarinContacts') || '[]');
+  let contactsData = [];
+  try {
+    const saved = localStorage.getItem('mascarinContacts');
+    if (saved) {
+      contactsData = JSON.parse(saved);
+    }
+  } catch (e) {
+    console.warn('Error parsing contacts for badges:', e);
+    contactsData = [];
+  }
+
+  if (!Array.isArray(contactsData)) {
+    contactsData = [];
+  }
+
   const unreadContacts = contactsData.filter(c => c.status === 'unread').length;
   const contactsBadge = document.getElementById('contacts-badge');
   if (contactsBadge) {
@@ -1285,45 +1295,58 @@ function rejectRequest(id) {
 let contacts = [];
 
 function loadContacts() {
-  const saved = localStorage.getItem('mascarinContactRequests');
+  const saved = localStorage.getItem('mascarinContacts');
+  console.log('DEBUG: loadContacts reading localStorage:', saved);
   if (saved) {
     contacts = JSON.parse(saved);
+    console.log('DEBUG: loadContacts parsed:', contacts.length, 'contacts');
+  } else {
+    console.log('DEBUG: loadContacts found NO data');
   }
 }
 
 function saveContacts() {
-  localStorage.setItem('mascarinContactRequests', JSON.stringify(contacts));
+  console.log('DEBUG: saveContacts writing to localStorage. Count:', contacts.length);
+  localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
 }
 
 function renderContacts() {
+  console.log('DEBUG: renderContacts called. Contacts count:', contacts.length);
   const container = document.getElementById('contacts-list');
-  if (!container) return;
+  if (!container) {
+    console.error('DEBUG: contacts-list container NOT FOUND');
+    return;
+  }
 
   if (contacts.length === 0) {
-    container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucune demande de contact.</p>';
+    container.innerHTML = '<tr><td colspan="6" style="padding: 32px; text-align: center; color: var(--text-light);">Aucun message.</td></tr>';
     return;
   }
 
   container.innerHTML = contacts.map(contact => `
-    <div class="client-card" >
-      <div style="display: flex; justify-content: space-between; align-items: start;">
-        <h4>${contact.name}</h4>
-        <div style="font-size: 0.8em; color: var(--text-light);">${new Date(contact.date).toLocaleDateString()}</div>
-      </div>
-      <div class="client-info">
-        <div>📧 ${contact.email}</div>
-        ${contact.phone ? `<div>📞 ${contact.phone}</div>` : ''}
-        <div>🏷️ ${contact.subject || 'Pas de sujet'}</div>
-      </div>
-      <div style="margin-top: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px;">
-        "${contact.message}"
-      </div>
-      <div style="margin-top: 12px; text-align: right;">
-        <button class="btn-sm btn-delete" onclick="deleteContact('${contact.id}')">🗑️ Supprimer</button>
-        <a href="mailto:${contact.email}" class="btn-sm btn-secondary">↩️ Répondre</a>
-      </div>
-    </div >
-    `).join('');
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 16px;">${new Date(contact.date).toLocaleDateString()}</td>
+      <td style="padding: 16px;"><strong>${contact.name}</strong></td>
+      <td style="padding: 16px;">${contact.email}</td>
+      <td style="padding: 16px;">${contact.subject || 'Pas de sujet'}</td>
+      <td style="padding: 16px;">
+        <span class="status-badge status-${contact.status}">${contact.status === 'unread' ? 'Non lu' : 'Lu'}</span>
+      </td>
+      <td style="padding: 16px;">
+        <div style="display: flex; gap: 8px;">
+           <a href="mailto:${contact.email}" class="btn-sm btn-secondary">↩️</a>
+           <button class="btn-sm btn-delete" onclick="deleteContact('${contact.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>
+    ${contact.message ? `
+    <tr style="background-color: var(--bg-main);">
+        <td colspan="6" style="padding: 12px 16px; font-style: italic; color: var(--text-light); border-bottom: 1px solid var(--border);">
+            "${contact.message}"
+        </td>
+    </tr>
+    ` : ''}
+  `).join('');
 }
 
 function deleteContact(id) {
@@ -1331,9 +1354,16 @@ function deleteContact(id) {
 }
 
 function performContactDeletion(id) {
+  console.log('DEBUG: performContactDeletion called for id:', id);
+  const initialCount = contacts.length;
   contacts = contacts.filter(c => c.id !== id);
+  console.log(`DEBUG: Deleted. Count: ${initialCount} -> ${contacts.length}`);
+
   saveContacts();
   renderContacts();
+
+  console.log('DEBUG: Calling updateBadges()...');
+  updateBadges();
 }
 
 // ==========================================
@@ -1440,7 +1470,7 @@ function setupRealtimeListeners() {
       }
     }
 
-    if (e.key === 'mascarinContactRequests') {
+    if (e.key === 'mascarinContacts') {
       // Reload contacts
       loadContacts();
 
@@ -1487,3 +1517,94 @@ function showNotification(message, type = 'info') {
     toast.classList.remove('active');
   }, 5000);
 }
+
+
+// Debug Function
+window.debugBadges = function () {
+  const saved = localStorage.getItem('mascarinContacts');
+  let count = 0;
+  let parsed = [];
+
+  try {
+    parsed = JSON.parse(saved || '[]');
+    count = parsed.filter(c => c.status === 'unread').length;
+  } catch (e) {
+    console.error('DEBUG: Parse error', e);
+  }
+
+  const badge = document.getElementById('contacts-badge');
+
+  const msg = `État actuel :
+- LocalStorage : ${saved ? 'Données présentes' : 'VIDE'}
+- Messages total : ${parsed.length}
+- Non-lus : ${count}
+- Badge visible : ${badge && badge.style.display !== 'none' ? 'OUI' : 'NON'}
+
+Voulez-vous injecter un MESSAGE DE TEST pour vérifier le compteur ?`;
+
+  if (confirm(msg)) {
+    const testMsg = {
+      id: 'debug_' + Date.now(),
+      name: 'Debug User',
+      email: 'debug@test.com',
+      message: 'Ceci est un message de test injecté.',
+      status: 'unread',
+      date: new Date().toISOString()
+    };
+
+    const newData = [...parsed, testMsg];
+    localStorage.setItem('mascarinContacts', JSON.stringify(newData));
+
+    // Force reload and render
+    console.log('DEBUG: Injecting message and reloading...');
+    loadContacts();
+    updateBadges();
+
+    if (currentView === 'contacts') {
+      renderContacts();
+    } else {
+      switchView('contacts');
+    }
+
+    alert('Message injecté ! Le badge devrait afficher ' + (count + 1));
+  }
+
+  if (confirm("Voulez-vous stopper le rafraîchissement automatique (pour que le badge ne disparaisse pas) ?")) {
+    if (window.badgeInterval) clearInterval(window.badgeInterval);
+    alert("Rafraîchissement stoppé.");
+  }
+};
+
+function updateBadges() {
+  // Requests Badge
+  const pendingRequests = requests.filter(r => r.status === 'pending').length;
+  const requestsBadge = document.getElementById('requests-badge');
+  if (requestsBadge) {
+    requestsBadge.textContent = pendingRequests;
+    requestsBadge.style.display = pendingRequests > 0 ? 'inline-block' : 'none';
+  }
+
+  // Contacts Badge
+  let contactsData = [];
+  try {
+    const saved = localStorage.getItem('mascarinContacts');
+    if (saved) {
+      contactsData = JSON.parse(saved);
+    }
+  } catch (e) {
+    console.warn('Error parsing contacts for badges:', e);
+    contactsData = [];
+  }
+
+  if (!Array.isArray(contactsData)) {
+    contactsData = [];
+  }
+
+  const unreadContacts = contactsData.filter(c => c.status === 'unread').length;
+  const contactsBadge = document.getElementById('contacts-badge');
+  if (contactsBadge) {
+    contactsBadge.textContent = unreadContacts;
+    contactsBadge.style.display = unreadContacts > 0 ? 'inline-block' : 'none';
+  }
+}
+

@@ -46,312 +46,314 @@
             </div>
             <div class="header-right">
                 <span class="user-info">👤 Christian ABONNEL</span>
+                <button onclick="debugBadges()"
+                    style="background:orange; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:10px;">🐞
+                    Debug</button>
                 <button id="logout-btn" class="btn-logout">Déconnexion</button>
             </div>
         </header>
 
-        <div class="dashboard-container">
-            <!-- Sidebar -->
-            <aside class="sidebar">
-                <nav class="sidebar-nav">
-                    <a href="#" class="nav-item active" onclick="switchView('overview'); return false;"
-                        data-view="overview">
-                        <span class="nav-icon">📊</span>
-                        <span>Vue d'ensemble</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="switchView('calendar'); return false;" data-view="calendar">
-                        <span class="nav-icon">📅</span>
-                        <span>Calendrier</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="switchView('appointments'); return false;"
-                        data-view="appointments">
-                        <span class="nav-icon">📝</span>
-                        <span>Rendez-vous</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="switchView('clients'); return false;" data-view="clients">
-                        <span class="nav-icon">👥</span>
-                        <span>Clients</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="switchView('invoices'); return false;" data-view="invoices">
-                        <span class="nav-icon">💰</span>
-                        <span>Factures</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="switchView('requests'); return false;" data-view="requests">
-                        <span class="nav-icon">📩</span>
-                        <span>Demandes</span>
-                        <span id="requests-badge" class="badge" style="display:none">0</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="switchView('contacts'); return false;" data-view="contacts">
-                        <span class="nav-icon">💬</span>
-                        <span>Messages</span>
-                        <span id="contacts-badge" class="badge" style="display:none">0</span>
-                    </a>
-                    <a href="#" class="nav-item" onclick="switchView('backup'); return false;" data-view="backup">
-                        <span class="nav-icon">💾</span>
-                        <span>Sauvegarde</span>
-                    </a>
-                </nav>
-            </aside>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="switchView('overview'); return false;"
+                    data-view="overview">
+                    <span class="nav-icon">📊</span>
+                    <span>Vue d'ensemble</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('calendar'); return false;" data-view="calendar">
+                    <span class="nav-icon">📅</span>
+                    <span>Calendrier</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('appointments'); return false;"
+                    data-view="appointments">
+                    <span class="nav-icon">📝</span>
+                    <span>Rendez-vous</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('clients'); return false;" data-view="clients">
+                    <span class="nav-icon">👥</span>
+                    <span>Clients</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('invoices'); return false;" data-view="invoices">
+                    <span class="nav-icon">💰</span>
+                    <span>Factures</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('requests'); return false;" data-view="requests">
+                    <span class="nav-icon">📩</span>
+                    <span>Demandes</span>
+                    <span id="requests-badge" class="badge" style="display:none">0</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('contacts'); return false;" data-view="contacts">
+                    <span class="nav-icon">💬</span>
+                    <span>Messages</span>
+                    <span id="contacts-badge" class="badge" style="display:none">0</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchView('backup'); return false;" data-view="backup">
+                    <span class="nav-icon">💾</span>
+                    <span>Sauvegarde</span>
+                </a>
+            </nav>
+        </aside>
 
-            <!-- Main Content Area -->
-            <main class="main-content">
+        <!-- Main Content Area -->
+        <main class="main-content">
 
-                <!-- VIEW: OVERVIEW -->
-                <div id="view-overview" class="view active">
-                    <header class="view-header">
-                        <h2>Vue d'ensemble</h2>
-                        <div class="date-display" id="current-date"></div>
-                    </header>
+            <!-- VIEW: OVERVIEW -->
+            <div id="view-overview" class="view active">
+                <header class="view-header">
+                    <h2>Vue d'ensemble</h2>
+                    <div class="date-display" id="current-date"></div>
+                </header>
 
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">📅</div>
-                            <div>
-                                <div class="stat-value" id="stat-total">0</div>
-                                <div class="stat-label">Total Rendez-vous</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">📍</div>
-                            <div>
-                                <div class="stat-value" id="stat-today">0</div>
-                                <div class="stat-label">Aujourd'hui</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">⏳</div>
-                            <div>
-                                <div class="stat-value" id="stat-pending">0</div>
-                                <div class="stat-label">En attente</div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">✅</div>
-                            <div>
-                                <div class="stat-value" id="stat-completed">0</div>
-                                <div class="stat-label">Terminés</div>
-                            </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div>
+                            <div class="stat-value" id="stat-total">0</div>
+                            <div class="stat-label">Total Rendez-vous</div>
                         </div>
                     </div>
-
-                    <div class="section-card">
-                        <h3>Rendez-vous récents</h3>
-                        <div id="recent-appointments" class="appointments-list"></div>
-                    </div>
-                </div>
-
-                <!-- VIEW: CALENDAR -->
-                <div id="view-calendar" class="view">
-                    <header class="view-header">
-                        <h2>Calendrier</h2>
-                        <div class="calendar-controls">
-                            <button class="btn-secondary" id="prev-month">&lt;</button>
-                            <h3 id="current-month" class="month-label"></h3>
-                            <button class="btn-secondary" id="next-month">&gt;</button>
-                            <button class="btn-primary" id="today-btn">Aujourd'hui</button>
-                        </div>
-                    </header>
-                    <div id="calendar-container" class="calendar-container"></div>
-                </div>
-
-                <!-- VIEW: APPOINTMENTS -->
-                <div id="view-appointments" class="view">
-                    <header class="view-header">
-                        <h2>Gestion des Rendez-vous</h2>
-                        <div class="actions">
-                            <button class="btn-secondary" onclick="exportAppointments()">📥 Exporter</button>
-                            <button class="btn-primary" onclick="showNewAppointmentModal()">+ Nouveau RDV</button>
-                        </div>
-                    </header>
-
-                    <div class="filter-bar">
-                        <div class="search-box" style="flex: 2;">
-                            <input type="text" id="search-appointments" placeholder="Rechercher un rendez-vous..."
-                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                        </div>
-                        <div class="filter-group" style="flex: 1;">
-                            <select id="status-filter"
-                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                                <option value="all">Tous les statuts</option>
-                                <option value="pending">En attente</option>
-                                <option value="confirmed">Confirmé</option>
-                                <option value="completed">Terminé</option>
-                                <option value="cancelled">Annulé</option>
-                            </select>
+                    <div class="stat-card">
+                        <div class="stat-icon">📍</div>
+                        <div>
+                            <div class="stat-value" id="stat-today">0</div>
+                            <div class="stat-label">Aujourd'hui</div>
                         </div>
                     </div>
-
-                    <div class="appointments-table">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr
-                                    style="background: var(--bg-main); text-align: left; border-bottom: 1px solid var(--border);">
-                                    <th style="padding: 16px;">Client</th>
-                                    <th style="padding: 16px;">Contact</th>
-                                    <th style="padding: 16px;">Date & Heure</th>
-                                    <th style="padding: 16px;">Service</th>
-                                    <th style="padding: 16px;">Statut</th>
-                                    <th style="padding: 16px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="all-appointments">
-                                <!-- JS will populate this -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- VIEW: CLIENTS -->
-                <div id="view-clients" class="view">
-                    <header class="view-header">
-                        <h2>Clients</h2>
-                        <button class="btn-primary" onclick="showNewClientModal()">+ Nouveau Client</button>
-                    </header>
-                    <div class="filter-bar">
-                        <div class="search-box" style="flex: 2;">
-                            <input type="text" id="search-clients" placeholder="Rechercher un client..."
-                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div>
+                            <div class="stat-value" id="stat-pending">0</div>
+                            <div class="stat-label">En attente</div>
                         </div>
                     </div>
-                    <div id="clients-list" class="clients-grid"></div>
-                </div>
-
-                <!-- VIEW: INVOICES -->
-                <div id="view-invoices" class="view">
-                    <header class="view-header">
-                        <h2>Factures & Devis</h2>
-                        <button class="btn-primary" onclick="showNewInvoiceModal()">+ Nouveau Document</button>
-                    </header>
-                    <div class="filter-bar">
-                        <div class="search-box" style="flex: 2;">
-                            <input type="text" id="search-invoices" placeholder="Rechercher..."
-                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                        </div>
-                        <div class="filter-group" style="flex: 1;">
-                            <select id="invoice-type-filter"
-                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                                <option value="all">Tout voir</option>
-                                <option value="invoice">Factures</option>
-                                <option value="quote">Devis</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="appointments-table">
-                        <div id="invoices-list"></div>
-                    </div>
-                </div>
-
-                <!-- VIEW: REQUESTS -->
-                <div id="view-requests" class="view">
-                    <header class="view-header">
-                        <h2>Demandes de Rendez-vous</h2>
-                        <div class="actions">
-                            <button class="btn-secondary" onclick="loadRequests()">🔄 Actualiser</button>
-                        </div>
-                    </header>
-                    <div class="filter-bar">
-                        <div class="filter-group" style="flex: 1;">
-                            <select id="request-status-filter" onchange="filterRequests()"
-                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                                <option value="all">Toutes les demandes</option>
-                                <option value="pending">En attente</option>
-                                <option value="processed">Traitées</option>
-                                <option value="archived">Archivées</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="appointments-table">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr
-                                    style="background: var(--bg-main); text-align: left; border-bottom: 1px solid var(--border);">
-                                    <th style="padding: 16px;">Date demande</th>
-                                    <th style="padding: 16px;">Client</th>
-                                    <th style="padding: 16px;">Contact</th>
-                                    <th style="padding: 16px;">Souhait</th>
-                                    <th style="padding: 16px;">Statut</th>
-                                    <th style="padding: 16px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="requests-list">
-                                <!-- JS will populate this -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- VIEW: CONTACTS -->
-                <div id="view-contacts" class="view">
-                    <header class="view-header">
-                        <h2>Messages de Contact</h2>
-                        <div class="actions">
-                            <button class="btn-secondary" onclick="loadContacts()">🔄 Actualiser</button>
-                        </div>
-                    </header>
-                    <div class="filter-bar">
-                        <div class="filter-group" style="flex: 1;">
-                            <select id="contact-status-filter" onchange="filterContacts()"
-                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
-                                <option value="all">Tous les messages</option>
-                                <option value="unread">Non lus</option>
-                                <option value="read">Lus</option>
-                                <option value="archived">Archivés</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="appointments-table">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr
-                                    style="background: var(--bg-main); text-align: left; border-bottom: 1px solid var(--border);">
-                                    <th style="padding: 16px;">Date</th>
-                                    <th style="padding: 16px;">Nom</th>
-                                    <th style="padding: 16px;">Email</th>
-                                    <th style="padding: 16px;">Sujet</th>
-                                    <th style="padding: 16px;">Statut</th>
-                                    <th style="padding: 16px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="contacts-list">
-                                <!-- JS will populate this -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- VIEW: BACKUP -->
-                <div id="view-backup" class="view">
-                    <header class="view-header">
-                        <h2>Sauvegarde & Restauration</h2>
-                    </header>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">💾</div>
-                            <div>
-                                <h3>Sauvegarde</h3>
-                                <p style="margin-bottom: 15px; color: var(--text-light);">Télécharger une copie de
-                                    toutes les données</p>
-                                <button class="btn-primary" onclick="downloadBackup()">Télécharger Sauvegarde</button>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">♻️</div>
-                            <div>
-                                <h3>Restauration</h3>
-                                <p style="margin-bottom: 15px; color: var(--text-light);">Restaurer les données depuis
-                                    un fichier</p>
-                                <input type="file" id="restore-file" accept=".json" style="display: none;"
-                                    onchange="handleRestoreFile(this)">
-                                <button class="btn-secondary"
-                                    onclick="document.getElementById('restore-file').click()">Sélectionner
-                                    Fichier</button>
-                            </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div>
+                            <div class="stat-value" id="stat-completed">0</div>
+                            <div class="stat-label">Terminés</div>
                         </div>
                     </div>
                 </div>
 
-            </main>
-        </div>
+                <div class="section-card">
+                    <h3>Rendez-vous récents</h3>
+                    <div id="recent-appointments" class="appointments-list"></div>
+                </div>
+            </div>
+
+            <!-- VIEW: CALENDAR -->
+            <div id="view-calendar" class="view">
+                <header class="view-header">
+                    <h2>Calendrier</h2>
+                    <div class="calendar-controls">
+                        <button class="btn-secondary" id="prev-month">&lt;</button>
+                        <h3 id="current-month" class="month-label"></h3>
+                        <button class="btn-secondary" id="next-month">&gt;</button>
+                        <button class="btn-primary" id="today-btn">Aujourd'hui</button>
+                    </div>
+                </header>
+                <div id="calendar-container" class="calendar-container"></div>
+            </div>
+
+            <!-- VIEW: APPOINTMENTS -->
+            <div id="view-appointments" class="view">
+                <header class="view-header">
+                    <h2>Gestion des Rendez-vous</h2>
+                    <div class="actions">
+                        <button class="btn-secondary" onclick="exportAppointments()">📥 Exporter</button>
+                        <button class="btn-primary" onclick="showNewAppointmentModal()">+ Nouveau RDV</button>
+                    </div>
+                </header>
+
+                <div class="filter-bar">
+                    <div class="search-box" style="flex: 2;">
+                        <input type="text" id="search-appointments" placeholder="Rechercher un rendez-vous..."
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div class="filter-group" style="flex: 1;">
+                        <select id="status-filter"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                            <option value="all">Tous les statuts</option>
+                            <option value="pending">En attente</option>
+                            <option value="confirmed">Confirmé</option>
+                            <option value="completed">Terminé</option>
+                            <option value="cancelled">Annulé</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="appointments-table">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr
+                                style="background: var(--bg-main); text-align: left; border-bottom: 1px solid var(--border);">
+                                <th style="padding: 16px;">Client</th>
+                                <th style="padding: 16px;">Contact</th>
+                                <th style="padding: 16px;">Date & Heure</th>
+                                <th style="padding: 16px;">Service</th>
+                                <th style="padding: 16px;">Statut</th>
+                                <th style="padding: 16px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-appointments">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW: CLIENTS -->
+            <div id="view-clients" class="view">
+                <header class="view-header">
+                    <h2>Clients</h2>
+                    <button class="btn-primary" onclick="showNewClientModal()">+ Nouveau Client</button>
+                </header>
+                <div class="filter-bar">
+                    <div class="search-box" style="flex: 2;">
+                        <input type="text" id="search-clients" placeholder="Rechercher un client..."
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                </div>
+                <div id="clients-list" class="clients-grid"></div>
+            </div>
+
+            <!-- VIEW: INVOICES -->
+            <div id="view-invoices" class="view">
+                <header class="view-header">
+                    <h2>Factures & Devis</h2>
+                    <button class="btn-primary" onclick="showNewInvoiceModal()">+ Nouveau Document</button>
+                </header>
+                <div class="filter-bar">
+                    <div class="search-box" style="flex: 2;">
+                        <input type="text" id="search-invoices" placeholder="Rechercher..."
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                    </div>
+                    <div class="filter-group" style="flex: 1;">
+                        <select id="invoice-type-filter"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                            <option value="all">Tout voir</option>
+                            <option value="invoice">Factures</option>
+                            <option value="quote">Devis</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="appointments-table">
+                    <div id="invoices-list"></div>
+                </div>
+            </div>
+
+            <!-- VIEW: REQUESTS -->
+            <div id="view-requests" class="view">
+                <header class="view-header">
+                    <h2>Demandes de Rendez-vous</h2>
+                    <div class="actions">
+                        <button class="btn-secondary" onclick="loadRequests()">🔄 Actualiser</button>
+                    </div>
+                </header>
+                <div class="filter-bar">
+                    <div class="filter-group" style="flex: 1;">
+                        <select id="request-status-filter" onchange="filterRequests()"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                            <option value="all">Toutes les demandes</option>
+                            <option value="pending">En attente</option>
+                            <option value="processed">Traitées</option>
+                            <option value="archived">Archivées</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="appointments-table">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr
+                                style="background: var(--bg-main); text-align: left; border-bottom: 1px solid var(--border);">
+                                <th style="padding: 16px;">Date demande</th>
+                                <th style="padding: 16px;">Client</th>
+                                <th style="padding: 16px;">Contact</th>
+                                <th style="padding: 16px;">Souhait</th>
+                                <th style="padding: 16px;">Statut</th>
+                                <th style="padding: 16px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requests-list">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW: CONTACTS -->
+            <div id="view-contacts" class="view">
+                <header class="view-header">
+                    <h2>Messages de Contact</h2>
+                    <div class="actions">
+                        <button class="btn-secondary" onclick="loadContacts()">🔄 Actualiser</button>
+                    </div>
+                </header>
+                <div class="filter-bar">
+                    <div class="filter-group" style="flex: 1;">
+                        <select id="contact-status-filter" onchange="filterContacts()"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px;">
+                            <option value="all">Tous les messages</option>
+                            <option value="unread">Non lus</option>
+                            <option value="read">Lus</option>
+                            <option value="archived">Archivés</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="appointments-table">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr
+                                style="background: var(--bg-main); text-align: left; border-bottom: 1px solid var(--border);">
+                                <th style="padding: 16px;">Date</th>
+                                <th style="padding: 16px;">Nom</th>
+                                <th style="padding: 16px;">Email</th>
+                                <th style="padding: 16px;">Sujet</th>
+                                <th style="padding: 16px;">Statut</th>
+                                <th style="padding: 16px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contacts-list">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW: BACKUP -->
+            <div id="view-backup" class="view">
+                <header class="view-header">
+                    <h2>Sauvegarde & Restauration</h2>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">💾</div>
+                        <div>
+                            <h3>Sauvegarde</h3>
+                            <p style="margin-bottom: 15px; color: var(--text-light);">Télécharger une copie de
+                                toutes les données</p>
+                            <button class="btn-primary" onclick="downloadBackup()">Télécharger Sauvegarde</button>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">♻️</div>
+                        <div>
+                            <h3>Restauration</h3>
+                            <p style="margin-bottom: 15px; color: var(--text-light);">Restaurer les données depuis
+                                un fichier</p>
+                            <input type="file" id="restore-file" accept=".json" style="display: none;"
+                                onchange="handleRestoreFile(this)">
+                            <button class="btn-secondary"
+                                onclick="document.getElementById('restore-file').click()">Sélectionner
+                                Fichier</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
     </div>
 
     <!-- Appointment Modal -->
@@ -651,7 +653,7 @@
 
     <!-- Application Scripts -->
     <script src="./js/backup-restore.js?v=10"></script>
-    <script src="./js/admin-dashboard.js?v=10"></script>
+    <script src="./js/admin-dashboard.js?v=17"></script>
 </body>
 
 </html>

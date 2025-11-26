@@ -196,40 +196,7 @@ ul {
   top: -8px;
 }
 
-.hamburger::after {
-  top: 8px;
-}
-
-/* Hero Section */
-.hero {
-  height: 100vh;
-  position: relative;
-  display: flex;
-  align-items: center;
-  color: white;
-  padding-top: var(--header-height);
-}
-
-.hero-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.7)), url('../public/hero-bg.png');
-  background-size: cover;
-  background-position: center;
-  z-index: -1;
-}
-
-.hero-content {
-  max-width: 800px;
-}
-
-.hero-title {
-  font-size: 4rem;
-  margin-bottom: 20px;
-  color: var(--bg-white);
+color: var(--bg-white);
 }
 
 .hero-subtitle {
