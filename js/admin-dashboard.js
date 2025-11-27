@@ -11,16 +11,21 @@ let requests = [];
 let contacts = [];
 let currentView = 'overview';
 let currentDate = new Date();
-loadClients();
-loadRequests();
-loadContacts();
-setupEventListeners();
-setupRealtimeListeners();
+// Initialize app
+document.addEventListener('DOMContentLoaded', () => {
+  checkAuthentication();
+  loadAppointments();
+  loadInvoices();
+  loadClients();
+  loadRequests();
+  loadContacts();
+  setupEventListeners();
+  setupRealtimeListeners();
 
-// Refresh badges periodically to detect changes in localStorage
-badgeInterval = setInterval(() => {
-  updateBadges();
-}, 2000); // Update every 2 seconds
+  // Refresh badges periodically to detect changes in localStorage
+  badgeInterval = setInterval(() => {
+    updateBadges();
+  }, 2000); // Update every 2 seconds
 });
 
 // Authentication
