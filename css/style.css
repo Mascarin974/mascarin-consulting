@@ -120,25 +120,6 @@ ul {
 }
 
 .header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 100%;
-}
-
-.logo {
-  .hamburger::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    color: #e2e8f0;
-    max-width: 600px;
-  }
-
-  .hero-actions {
-    display: flex;
-    gap: 20px;
-  }
 
   /* Sections General */
   .section {
