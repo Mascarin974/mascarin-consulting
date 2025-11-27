@@ -15,6 +15,7 @@ let editingAppointmentId = null;
 let editingInvoiceId = null;
 let editingClientId = null;
 let currentSelectedDate = null;
+let badgeInterval = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,10 +74,12 @@ function resetApp() {
 function setupEventListeners() {
   console.log('DEBUG: setupEventListeners called');
   // Login form
-  document.getElementById('login-form').addEventListener('submit', handleLogin);
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) loginForm.addEventListener('submit', handleLogin);
 
   // Logout
-  document.getElementById('logout-btn').addEventListener('click', handleLogout);
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
   // Navigation
   document.querySelectorAll('.nav-item').forEach(item => {
@@ -88,21 +91,31 @@ function setupEventListeners() {
   });
 
   // Appointment form
-  document.getElementById('appointment-form').addEventListener('submit', handleAppointmentSubmit);
+  const aptForm = document.getElementById('appointment-form');
+  if (aptForm) aptForm.addEventListener('submit', handleAppointmentSubmit);
 
   // Calendar controls
-  document.getElementById('prev-month').addEventListener('click', () => changeMonth(-1));
-  document.getElementById('next-month').addEventListener('click', () => changeMonth(1));
-  document.getElementById('today-btn').addEventListener('click', () => {
+  const prevMonthBtn = document.getElementById('prev-month');
+  if (prevMonthBtn) prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+
+  const nextMonthBtn = document.getElementById('next-month');
+  if (nextMonthBtn) nextMonthBtn.addEventListener('click', () => changeMonth(1));
+
+  const todayBtn = document.getElementById('today-btn');
+  if (todayBtn) todayBtn.addEventListener('click', () => {
     currentDate = new Date();
     renderCalendar();
   });
 
   // Filters
-  document.getElementById('status-filter').addEventListener('change', renderAppointmentsTable);
-  document.getElementById('search-appointments').addEventListener('input', renderAppointmentsTable);
+  const statusFilter = document.getElementById('status-filter');
+  if (statusFilter) statusFilter.addEventListener('change', renderAppointmentsTable);
 
-  document.getElementById('client-form').addEventListener('submit', handleClientSubmit);
+  const searchApt = document.getElementById('search-appointments');
+  if (searchApt) searchApt.addEventListener('input', renderAppointmentsTable);
+
+  const clientForm = document.getElementById('client-form');
+  if (clientForm) clientForm.addEventListener('submit', handleClientSubmit);
 
   // Invoice form
   const invoiceForm = document.getElementById('invoice-form');
@@ -116,9 +129,6 @@ function setupEventListeners() {
     confirmBtn.addEventListener('click', confirmDeletion);
   }
 }
-
-// State
-// (Moved to top of file)
 
 // Login
 function handleLogin(e) {
@@ -212,6 +222,10 @@ function showNewAppointmentModal() {
   document.getElementById('modal-title').textContent = 'Nouveau Rendez-vous';
   document.getElementById('appointment-form').reset();
 
+  if (typeof updateClientSelect === 'function') {
+    updateClientSelect();
+  }
+
   // Set default date/time
   const now = new Date();
   const dateStr = now.toISOString().split('T')[0];
@@ -301,7 +315,8 @@ function switchView(view) {
   document.querySelectorAll('.view').forEach(v => {
     v.classList.remove('active');
   });
-  document.getElementById(`view-${view}`).classList.add('active');
+  const viewEl = document.getElementById(`view-${view}`);
+  if (viewEl) viewEl.classList.add('active');
 
   // Render view-specific content
   if (view === 'calendar') {
@@ -328,6 +343,7 @@ function updateDashboard() {
   if (currentView === 'appointments') renderAppointmentsTable();
   if (currentView === 'clients') renderClients();
   if (currentView === 'contacts') renderContacts();
+
   const pendingRequests = requests.filter(r => r.status === 'pending').length;
   const requestsBadge = document.getElementById('requests-badge');
   if (requestsBadge) {
@@ -641,7 +657,7 @@ function exportAppointments() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `rendez - vous - ${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `rendez-vous-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -776,348 +792,7 @@ function performDayDeletion(id) {
   }
 }
 
-// Window Assignments
-window.editAppointment = editAppointment;
-window.deleteAppointment = deleteAppointment;
-window.exportAppointments = exportAppointments;
-window.importAppointments = importAppointments;
-window.clearAllData = clearAllData;
-window.showDayAppointments = showDayAppointments;
-window.closeDayModal = closeDayModal;
-window.addAppointmentForDay = addAppointmentForDay;
-window.deleteAppointmentFromDay = deleteAppointmentFromDay;
-window.closeConfirmationModal = closeConfirmationModal;
-window.showNewAppointmentModal = showNewAppointmentModal;
-
-// Debug: Log loaded functions
-console.log('Admin Dashboard Script Loaded');
-console.log('Exposed functions:', {
-  deleteAppointment: typeof window.deleteAppointment,
-  editAppointment: typeof window.editAppointment,
-  handleAppointmentSubmit: typeof handleAppointmentSubmit
-});
-
-// ==========================================
-// INVOICE & QUOTE MANAGEMENT
-// ==========================================
-
-function loadInvoices() {
-  const saved = localStorage.getItem('mascarinInvoices');
-  if (saved) {
-    invoices = JSON.parse(saved);
-  }
-}
-
-function saveInvoices() {
-  localStorage.setItem('mascarinInvoices', JSON.stringify(invoices));
-}
-
-function renderInvoicesTable() {
-  const container = document.getElementById('invoices-list');
-  const typeFilter = document.getElementById('invoice-type-filter').value;
-  const searchTerm = document.getElementById('search-invoices').value.toLowerCase();
-
-  let filtered = invoices;
-
-  if (typeFilter !== 'all') {
-    filtered = filtered.filter(i => i.type === typeFilter);
-  }
-
-  if (searchTerm) {
-    filtered = filtered.filter(i =>
-      i.clientName.toLowerCase().includes(searchTerm) ||
-      i.number.toLowerCase().includes(searchTerm)
-    );
-  }
-
-  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucun document trouvé</p>';
-    return;
-  }
-
-  container.innerHTML = `
-    <table style = "width: 100%; border-collapse: collapse;" >
-      <thead>
-        <tr style="border-bottom: 2px solid var(--border); text-align: left;">
-          <th style="padding: 16px;">Numéro</th>
-          <th style="padding: 16px;">Client</th>
-          <th style="padding: 16px;">Date</th>
-          <th style="padding: 16px;">Montant</th>
-          <th style="padding: 16px;">Statut</th>
-          <th style="padding: 16px;">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filtered.map(inv => `
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 16px;">
-              <strong>${inv.number}</strong><br>
-              <span style="font-size: 0.8em; color: var(--text-light);">${inv.type === 'invoice' ? 'Facture' : 'Devis'}</span>
-            </td>
-            <td style="padding: 16px;">${inv.clientName}</td>
-            <td style="padding: 16px;">${formatDate(inv.date)}</td>
-            <td style="padding: 16px;"><strong>${parseFloat(inv.total).toFixed(2)} €</strong></td>
-            <td style="padding: 16px;">
-              <span class="status-badge status-${inv.status}">
-                ${getInvoiceStatusLabel(inv.status)}
-              </span>
-            </td>
-            <td style="padding: 16px;">
-              <div style="display: flex; gap: 8px;">
-                <button class="btn-sm btn-edit" onclick="printInvoice('${inv.id}')" title="Imprimer">🖨️</button>
-                <button class="btn-sm btn-edit" onclick="editInvoice('${inv.id}')">✏️</button>
-                <button class="btn-sm btn-delete" onclick="deleteInvoice('${inv.id}')">🗑️</button>
-              </div>
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table >
-    `;
-}
-
-function getInvoiceStatusLabel(status) {
-  const labels = {
-    draft: 'Brouillon',
-    sent: 'Envoyé',
-    paid: 'Payé / Signé',
-    cancelled: 'Annulé'
-  };
-  return labels[status] || status;
-}
-
-// Modal & Editing
-function showNewInvoiceModal() {
-  editingInvoiceId = null;
-  document.getElementById('invoice-modal-title').textContent = 'Nouveau Document';
-  document.getElementById('invoice-form').reset();
-  document.getElementById('invoice-items-list').innerHTML = '';
-
-  // Set default dates
-  document.getElementById('invoice-date').valueAsDate = new Date();
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + 30);
-  document.getElementById('invoice-due-date').valueAsDate = dueDate;
-
-  updateInvoiceNumberPrefix();
-  addInvoiceItem(); // Add one empty line
-  calculateInvoiceTotal();
-
-  if (typeof updateInvoiceClientSelect === 'function') {
-    updateInvoiceClientSelect();
-  }
-
-  document.getElementById('invoice-modal').classList.add('active');
-}
-
-function closeInvoiceModal() {
-  document.getElementById('invoice-modal').classList.remove('active');
-}
-
-function updateInvoiceNumberPrefix() {
-  if (editingInvoiceId) return; // Don't change number if editing
-
-  const type = document.getElementById('invoice-type').value;
-  const prefix = type === 'invoice' ? 'FAC' : 'DEV';
-  const date = new Date();
-
-  // Format: DDMMYYYY
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-  const dateStr = `${day}${month}${year}`; // ex: 25112025
-
-  // Find last number for this date and type
-  const existingDocs = invoices.filter(i =>
-    i.type === type &&
-    i.number.startsWith(`${prefix}-${dateStr}-`)
-  );
-
-  let nextSeq = 1;
-  if (existingDocs.length > 0) {
-    const maxSeq = Math.max(...existingDocs.map(i => {
-      const parts = i.number.split('-');
-      return parseInt(parts[2]) || 0;
-    }));
-    nextSeq = maxSeq + 1;
-  }
-
-  const sequence = nextSeq.toString().padStart(3, '0');
-  document.getElementById('invoice-number').value = `${prefix}-${dateStr}-${sequence}`;
-}
-
-function addInvoiceItem(item = null) {
-  const tbody = document.getElementById('invoice-items-list');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td style = "padding: 8px;" ><input type="text" class="item-desc" placeholder="Description" value="${item ? item.description : ''}" required style="width: 100%;"></td>
-    <td style="padding: 8px;"><input type="number" class="item-qty" value="${item ? item.quantity : 1}" min="1" required style="width: 100%;" onchange="calculateInvoiceTotal()"></td>
-    <td style="padding: 8px;"><input type="number" class="item-price" value="${item ? item.price : 0}" min="0" step="0.01" required style="width: 100%;" onchange="calculateInvoiceTotal()"></td>
-    <td style="padding: 8px;"><span class="item-total">0.00 €</span></td>
-    <td style="padding: 8px; text-align: center;"><button type="button" class="btn-sm btn-delete" onclick="this.closest('tr').remove(); calculateInvoiceTotal()">×</button></td>
-  `;
-  tbody.appendChild(tr);
-  calculateInvoiceTotal();
-}
-
-function calculateInvoiceTotal() {
-  const rows = document.querySelectorAll('#invoice-items-list tr');
-  let subtotal = 0;
-
-  rows.forEach(row => {
-    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-    const price = parseFloat(row.querySelector('.item-price').value) || 0;
-    const total = qty * price;
-    row.querySelector('.item-total').textContent = total.toFixed(2) + ' €';
-    subtotal += total;
-  });
-
-  const tvaRate = 0.085;
-  const tvaAmount = subtotal * tvaRate;
-  const totalTTC = subtotal + tvaAmount;
-
-  document.getElementById('invoice-subtotal').textContent = subtotal.toFixed(2) + ' €';
-
-  const tvaEl = document.getElementById('invoice-tva');
-  if (tvaEl) {
-    tvaEl.textContent = tvaAmount.toFixed(2) + ' €';
-  }
-
-  document.getElementById('invoice-total').textContent = totalTTC.toFixed(2) + ' €';
-}
-
-function handleInvoiceSubmit(e) {
-  e.preventDefault();
-
-  const items = [];
-  document.querySelectorAll('#invoice-items-list tr').forEach(row => {
-    items.push({
-      description: row.querySelector('.item-desc').value,
-      quantity: parseFloat(row.querySelector('.item-qty').value),
-      price: parseFloat(row.querySelector('.item-price').value)
-    });
-  });
-
-  const formData = {
-    type: document.getElementById('invoice-type').value,
-    number: document.getElementById('invoice-number').value,
-    status: document.getElementById('invoice-status').value,
-    clientName: document.getElementById('invoice-client-select').options[document.getElementById('invoice-client-select').selectedIndex].text,
-    clientId: document.getElementById('invoice-client-select').value,
-    clientEmail: document.getElementById('invoice-client-email').value,
-    date: document.getElementById('invoice-date').value,
-    dueDate: document.getElementById('invoice-due-date').value,
-    items: items,
-    total: parseFloat(document.getElementById('invoice-total').textContent)
-  };
-
-  if (editingInvoiceId) {
-    const index = invoices.findIndex(i => i.id === editingInvoiceId);
-    if (index !== -1) {
-      invoices[index] = { ...invoices[index], ...formData };
-    }
-  } else {
-    const newInvoice = {
-      id: 'inv_' + Date.now(),
-      ...formData
-    };
-    invoices.push(newInvoice);
-  }
-
-  saveInvoices();
-  renderInvoicesTable();
-  closeInvoiceModal();
-}
-
-function editInvoice(id) {
-  const inv = invoices.find(i => i.id === id);
-  if (!inv) return;
-
-  editingInvoiceId = id;
-  document.getElementById('invoice-modal-title').textContent = 'Modifier Document';
-
-  document.getElementById('invoice-type').value = inv.type;
-  document.getElementById('invoice-number').value = inv.number;
-  document.getElementById('invoice-status').value = inv.status;
-  document.getElementById('invoice-status').value = inv.status;
-
-  if (typeof updateInvoiceClientSelect === 'function') {
-    updateInvoiceClientSelect();
-  }
-
-  if (document.getElementById('invoice-client-select')) {
-    document.getElementById('invoice-client-select').value = inv.clientId || '';
-    // If client ID is missing (legacy data), try to match by name or keep empty
-    if (!inv.clientId && inv.clientName) {
-      // Optional: logic to find client by name could go here
-    }
-  }
-
-  document.getElementById('invoice-client-email').value = inv.clientEmail || '';
-  document.getElementById('invoice-date').value = inv.date;
-  document.getElementById('invoice-due-date').value = inv.dueDate;
-
-  const tbody = document.getElementById('invoice-items-list');
-  tbody.innerHTML = '';
-  inv.items.forEach(item => addInvoiceItem(item));
-  calculateInvoiceTotal();
-
-  document.getElementById('invoice-modal').classList.add('active');
-}
-
-function updateInvoiceClientSelect() {
-  const select = document.getElementById('invoice-client-select');
-  if (!select) return;
-
-  const currentValue = select.value;
-
-  select.innerHTML = '<option value="">Sélectionner un client...</option>' +
-    clients.map(c => `<option value="${c.id}" data-email="${c.email || ''}">${c.name}</option>`).join('');
-
-  if (currentValue) {
-    select.value = currentValue;
-  }
-}
-
-function handleInvoiceClientChange() {
-  const select = document.getElementById('invoice-client-select');
-  const emailInput = document.getElementById('invoice-client-email');
-
-  if (select && select.selectedIndex > 0) {
-    const option = select.options[select.selectedIndex];
-    if (emailInput) emailInput.value = option.dataset.email || '';
-  } else {
-    if (emailInput) emailInput.value = '';
-  }
-}
-
-// Expose new functions
-window.updateInvoiceClientSelect = updateInvoiceClientSelect;
-window.handleInvoiceClientChange = handleInvoiceClientChange;
-
-function deleteInvoice(id) {
-  if (!confirm('Supprimer ce document ?')) return;
-  invoices = invoices.filter(i => i.id !== id);
-  saveInvoices();
-  renderInvoicesTable();
-}
-
-// Expose functions
-window.showNewInvoiceModal = showNewInvoiceModal;
-window.closeInvoiceModal = closeInvoiceModal;
-window.addInvoiceItem = addInvoiceItem;
-window.editInvoice = editInvoice;
-window.deleteInvoice = deleteInvoice;
-window.updateInvoiceNumberPrefix = updateInvoiceNumberPrefix;
-window.calculateInvoiceTotal = calculateInvoiceTotal;
-window.closeAppointmentModal = closeAppointmentModal;
-
-// ==========================================
-// CLIENT MANAGEMENT
-// ==========================================
-
+// CLIENTS MANAGEMENT
 function loadClients() {
   const saved = localStorage.getItem('mascarinClients');
   if (saved) {
@@ -1131,48 +806,53 @@ function saveClients() {
 
 function renderClients() {
   const container = document.getElementById('clients-list');
+  const searchTerm = document.getElementById('search-clients').value.toLowerCase();
 
-  if (!container) return;
+  let filtered = clients;
+  if (searchTerm) {
+    filtered = filtered.filter(c =>
+      c.name.toLowerCase().includes(searchTerm) ||
+      c.email?.toLowerCase().includes(searchTerm) ||
+      c.phone?.includes(searchTerm)
+    );
+  }
 
-  if (clients.length === 0) {
-    container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucun client. Cliquez sur "+ Nouveau Client" pour en ajouter un.</p>';
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-light);">Aucun client trouvé</p>';
     return;
   }
 
-  container.innerHTML = clients.map(client => `
-    <div class="client-card" >
-      <div style="display: flex; justify-content: space-between; align-items: start;">
-        <h4>${client.name}</h4>
-        <div style="display: flex; gap: 8px;">
+  container.innerHTML = filtered.map(client => {
+    // Calculate client stats
+    const clientApts = appointments.filter(a => a.clientId === client.id);
+    const totalSpent = invoices
+      .filter(i => i.clientId === client.id && i.status === 'paid')
+      .reduce((sum, i) => sum + i.total, 0);
+
+    return `
+      <div class="client-card">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <h4>${client.name}</h4>
           <button class="btn-sm btn-edit" onclick="editClient('${client.id}')">✏️</button>
-          <button class="btn-sm btn-delete" onclick="deleteClient('${client.id}')">🗑️</button>
+        </div>
+        <div class="client-info">
+          ${client.email ? `<div>📧 ${client.email}</div>` : ''}
+          ${client.phone ? `<div>📞 ${client.phone}</div>` : ''}
+          ${client.address ? `<div>📍 ${client.address}</div>` : ''}
+        </div>
+        <div class="client-stats">
+          <div class="client-stat">
+            <div class="client-stat-value">${clientApts.length}</div>
+            <div class="client-stat-label">Rendez-vous</div>
+          </div>
+          <div class="client-stat">
+            <div class="client-stat-value">${totalSpent.toFixed(2)}€</div>
+            <div class="client-stat-label">Chiffre d'affaires</div>
+          </div>
         </div>
       </div>
-      <div class="client-info">
-        ${client.email ? `<div>📧 ${client.email}</div>` : ''}
-        ${client.phone ? `<div>📞 ${client.phone}</div>` : ''}
-        ${client.address ? `<div>📍 ${client.address}</div>` : ''}
-      </div>
-      ${client.notes ? `<div style="margin-top: 12px; padding: 12px; background: var(--bg-main); border-radius: 8px; font-size: 0.9em;"><strong>Notes:</strong> ${client.notes}</div>` : ''}
-    </div >
-    `).join('');
-
-  // Also update the select dropdown in appointment modal
-  updateClientSelect();
-}
-
-function updateClientSelect() {
-  const select = document.getElementById('client-select');
-  if (!select) return;
-
-  const currentValue = select.value;
-
-  select.innerHTML = '<option value="">Sélectionner un client...</option>' +
-    clients.map(c => `<option value="${c.id}" data-email="${c.email || ''}" data-phone="${c.phone || ''}">${c.name}</option>`).join('');
-
-  if (currentValue) {
-    select.value = currentValue;
-  }
+    `;
+  }).join('');
 }
 
 function showNewClientModal() {
@@ -1203,16 +883,16 @@ function handleClientSubmit(e) {
       clients[index] = { ...clients[index], ...formData };
     }
   } else {
-    const newClient = {
-      id: 'client_' + Date.now(),
+    clients.push({
+      id: Date.now().toString(),
       createdAt: new Date().toISOString(),
       ...formData
-    };
-    clients.push(newClient);
+    });
   }
 
   saveClients();
   renderClients();
+  updateClientSelect();
   closeClientModal();
 }
 
@@ -1222,7 +902,6 @@ function editClient(id) {
 
   editingClientId = id;
   document.getElementById('client-modal-title').textContent = 'Modifier Client';
-
   document.getElementById('client-form-name').value = client.name;
   document.getElementById('client-form-email').value = client.email || '';
   document.getElementById('client-form-phone').value = client.phone || '';
@@ -1232,23 +911,285 @@ function editClient(id) {
   document.getElementById('client-modal').classList.add('active');
 }
 
-function deleteClient(id) {
-  if (!confirm('Supprimer ce client ? Cette action est irréversible.')) return;
-  clients = clients.filter(c => c.id !== id);
-  saveClients();
-  renderClients();
+function updateClientSelect() {
+  const selects = ['client-select', 'invoice-client-select'];
+
+  selects.forEach(selectId => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">Sélectionner un client...</option>';
+
+    clients.sort((a, b) => a.name.localeCompare(b.name)).forEach(client => {
+      const option = document.createElement('option');
+      option.value = client.id;
+      option.textContent = client.name;
+      option.dataset.email = client.email || '';
+      option.dataset.phone = client.phone || '';
+      select.appendChild(option);
+    });
+
+    if (currentValue) select.value = currentValue;
+  });
 }
 
-// Expose client functions
-window.showNewClientModal = showNewClientModal;
-window.closeClientModal = closeClientModal;
-window.editClient = editClient;
-window.deleteClient = deleteClient;
+// INVOICES MANAGEMENT
+function loadInvoices() {
+  const saved = localStorage.getItem('mascarinInvoices');
+  if (saved) {
+    invoices = JSON.parse(saved);
+  }
+}
 
-// ==========================================
-// REQUESTS MANAGEMENT (Demandes de RDV)
-// ==========================================
+function saveInvoices() {
+  localStorage.setItem('mascarinInvoices', JSON.stringify(invoices));
+}
 
+function renderInvoicesTable() {
+  const container = document.getElementById('invoices-list');
+  const typeFilter = document.getElementById('invoice-type-filter').value;
+  const searchTerm = document.getElementById('search-invoices').value.toLowerCase();
+
+  let filtered = invoices;
+
+  if (typeFilter !== 'all') {
+    filtered = filtered.filter(i => i.type === typeFilter);
+  }
+
+  if (searchTerm) {
+    filtered = filtered.filter(i =>
+      i.number.toLowerCase().includes(searchTerm) ||
+      i.clientName.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucun document trouvé</p>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+          <th style="padding: 16px;">Numéro</th>
+          <th style="padding: 16px;">Date</th>
+          <th style="padding: 16px;">Client</th>
+          <th style="padding: 16px;">Montant TTC</th>
+          <th style="padding: 16px;">Statut</th>
+          <th style="padding: 16px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map(inv => `
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 16px;"><strong>${inv.number}</strong></td>
+            <td style="padding: 16px;">${formatDate(inv.date)}</td>
+            <td style="padding: 16px;">${inv.clientName}</td>
+            <td style="padding: 16px;">${inv.total.toFixed(2)} €</td>
+            <td style="padding: 16px;">
+              <span class="status-badge status-${inv.status === 'paid' ? 'completed' : (inv.status === 'sent' ? 'confirmed' : 'pending')}">
+                ${inv.status === 'paid' ? 'Payé' : (inv.status === 'sent' ? 'Envoyé' : 'Brouillon')}
+              </span>
+            </td>
+            <td style="padding: 16px;">
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-sm btn-edit" onclick="editInvoice('${inv.id}')">✏️</button>
+                <button class="btn-sm btn-delete" onclick="deleteInvoice('${inv.id}')">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function showNewInvoiceModal() {
+  editingInvoiceId = null;
+  document.getElementById('invoice-modal-title').textContent = 'Nouveau Document';
+  document.getElementById('invoice-form').reset();
+  document.getElementById('invoice-items-list').innerHTML = '';
+  addInvoiceItem(); // Add one empty row
+
+  // Set defaults
+  document.getElementById('invoice-date').valueAsDate = new Date();
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 30);
+  document.getElementById('invoice-due-date').valueAsDate = dueDate;
+
+  updateInvoiceNumberPrefix();
+  updateClientSelect();
+
+  document.getElementById('invoice-modal').classList.add('active');
+}
+
+function closeInvoiceModal() {
+  document.getElementById('invoice-modal').classList.remove('active');
+}
+
+function updateInvoiceNumberPrefix() {
+  const type = document.getElementById('invoice-type').value;
+  const prefix = type === 'invoice' ? 'FAC-' : 'DEV-';
+  const year = new Date().getFullYear();
+  const count = invoices.filter(i => i.type === type).length + 1;
+  document.getElementById('invoice-number').value = `${prefix}${year}-${String(count).padStart(4, '0')}`;
+}
+
+function handleInvoiceClientChange() {
+  const select = document.getElementById('invoice-client-select');
+  const emailInput = document.getElementById('invoice-client-email');
+  const nameInput = document.getElementById('invoice-client-name');
+
+  if (select.selectedIndex > 0) {
+    const option = select.options[select.selectedIndex];
+    emailInput.value = option.dataset.email || '';
+    nameInput.value = option.text;
+  } else {
+    emailInput.value = '';
+    nameInput.value = '';
+  }
+}
+
+function addInvoiceItem(item = null) {
+  const tbody = document.getElementById('invoice-items-list');
+  const tr = document.createElement('tr');
+  tr.style.borderBottom = '1px solid var(--border)';
+
+  tr.innerHTML = `
+    <td style="padding: 8px;">
+      <input type="text" class="item-desc" placeholder="Description" value="${item ? item.description : ''}" required style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+    </td>
+    <td style="padding: 8px;">
+      <input type="number" class="item-qty" value="${item ? item.qty : 1}" min="1" onchange="calculateInvoiceTotals()" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+    </td>
+    <td style="padding: 8px;">
+      <input type="number" class="item-price" value="${item ? item.price : 0}" step="0.01" onchange="calculateInvoiceTotals()" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+    </td>
+    <td style="padding: 8px; text-align: right;">
+      <span class="item-total">0.00 €</span>
+    </td>
+    <td style="padding: 8px; text-align: center;">
+      <button type="button" class="btn-sm btn-delete" onclick="this.closest('tr').remove(); calculateInvoiceTotals()">×</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+  calculateInvoiceTotals();
+}
+
+function calculateInvoiceTotals() {
+  let subtotal = 0;
+  const rows = document.querySelectorAll('#invoice-items-list tr');
+
+  rows.forEach(row => {
+    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+    const price = parseFloat(row.querySelector('.item-price').value) || 0;
+    const total = qty * price;
+
+    row.querySelector('.item-total').textContent = total.toFixed(2) + ' €';
+    subtotal += total;
+  });
+
+  const tva = subtotal * 0.085; // 8.5% TVA
+  const total = subtotal + tva;
+
+  document.getElementById('invoice-subtotal').textContent = subtotal.toFixed(2) + ' €';
+  document.getElementById('invoice-tva').textContent = tva.toFixed(2) + ' €';
+  document.getElementById('invoice-total').textContent = total.toFixed(2) + ' €';
+
+  return { subtotal, tva, total };
+}
+
+function handleInvoiceSubmit(e) {
+  e.preventDefault();
+
+  const items = [];
+  document.querySelectorAll('#invoice-items-list tr').forEach(row => {
+    items.push({
+      description: row.querySelector('.item-desc').value,
+      qty: parseFloat(row.querySelector('.item-qty').value),
+      price: parseFloat(row.querySelector('.item-price').value)
+    });
+  });
+
+  const totals = calculateInvoiceTotals();
+
+  const formData = {
+    type: document.getElementById('invoice-type').value,
+    number: document.getElementById('invoice-number').value,
+    status: document.getElementById('invoice-status').value,
+    clientId: document.getElementById('invoice-client-select').value,
+    clientName: document.getElementById('invoice-client-name').value,
+    clientEmail: document.getElementById('invoice-client-email').value,
+    date: document.getElementById('invoice-date').value,
+    dueDate: document.getElementById('invoice-due-date').value,
+    notes: document.getElementById('invoice-notes').value,
+    items: items,
+    subtotal: totals.subtotal,
+    tva: totals.tva,
+    total: totals.total
+  };
+
+  if (editingInvoiceId) {
+    const index = invoices.findIndex(i => i.id === editingInvoiceId);
+    if (index !== -1) {
+      invoices[index] = { ...invoices[index], ...formData };
+    }
+  } else {
+    invoices.push({
+      id: Date.now().toString(),
+      ...formData
+    });
+  }
+
+  saveInvoices();
+  renderInvoicesTable();
+  closeInvoiceModal();
+}
+
+function editInvoice(id) {
+  const inv = invoices.find(i => i.id === id);
+  if (!inv) return;
+
+  editingInvoiceId = id;
+  document.getElementById('invoice-modal-title').textContent = 'Modifier Document';
+  document.getElementById('invoice-type').value = inv.type;
+  document.getElementById('invoice-number').value = inv.number;
+  document.getElementById('invoice-status').value = inv.status;
+
+  updateClientSelect();
+  document.getElementById('invoice-client-select').value = inv.clientId;
+  document.getElementById('invoice-client-name').value = inv.clientName;
+  document.getElementById('invoice-client-email').value = inv.clientEmail;
+
+  document.getElementById('invoice-date').value = inv.date;
+  document.getElementById('invoice-due-date').value = inv.dueDate;
+  document.getElementById('invoice-notes').value = inv.notes || '';
+
+  const tbody = document.getElementById('invoice-items-list');
+  tbody.innerHTML = '';
+  inv.items.forEach(item => addInvoiceItem(item));
+
+  document.getElementById('invoice-modal').classList.add('active');
+}
+
+function deleteInvoice(id) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
+    invoices = invoices.filter(i => i.id !== id);
+    saveInvoices();
+    renderInvoicesTable();
+  }
+}
+
+function printInvoice() {
+  window.print();
+}
+
+// REQUESTS MANAGEMENT
 function loadRequests() {
   const saved = localStorage.getItem('mascarinRequests');
   if (saved) {
@@ -1260,14 +1201,76 @@ function saveRequests() {
   localStorage.setItem('mascarinRequests', JSON.stringify(requests));
 }
 
+function renderRequests() {
+  const container = document.getElementById('requests-list');
+  const statusFilter = document.getElementById('request-status-filter').value;
+
+  let filtered = requests;
+  if (statusFilter !== 'all') {
+    filtered = filtered.filter(r => r.status === statusFilter);
+  }
+
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Aucune demande trouvée</td></tr>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(req => `
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 16px;">${new Date(req.date).toLocaleDateString()}</td>
+      <td style="padding: 16px;">${req.name}</td>
+      <td style="padding: 16px;">
+        ${req.email}<br>
+        ${req.phone}
+      </td>
+      <td style="padding: 16px;">${req.service}</td>
+      <td style="padding: 16px;">
+        <span class="status-badge status-${req.status === 'processed' ? 'completed' : 'pending'}">
+          ${req.status === 'processed' ? 'Traitée' : 'En attente'}
+        </span>
+      </td>
+      <td style="padding: 16px;">
+        <button class="btn-sm btn-primary" onclick="convertRequestToAppointment('${req.id}')">📅 Planifier</button>
+        <button class="btn-sm btn-secondary" onclick="archiveRequest('${req.id}')">📁</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function convertRequestToAppointment(id) {
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+
+  showNewAppointmentModal();
+
+  // Pre-fill form
+  document.getElementById('client-name').value = req.name;
+  document.getElementById('client-email').value = req.email;
+  document.getElementById('client-phone').value = req.phone;
+  document.getElementById('appointment-type').value = req.service;
+  document.getElementById('appointment-notes').value = `Demande web du ${new Date(req.date).toLocaleDateString()}`;
+
+  // Mark as processed
+  req.status = 'processed';
+  saveRequests();
+}
+
+function archiveRequest(id) {
+  const req = requests.find(r => r.id === id);
+  if (req) {
+    req.status = 'archived';
+    saveRequests();
+    renderRequests();
+  }
+}
+
+// CONTACTS MANAGEMENT
 function loadContacts() {
   const saved = localStorage.getItem('mascarinContacts');
   if (saved) {
     contacts = JSON.parse(saved);
-  }
-
-  if (currentView === 'contacts') {
-    renderContacts();
   }
 }
 
@@ -1275,112 +1278,52 @@ function saveContacts() {
   localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
 }
 
-function renderRequests() {
-  const container = document.getElementById('requests-list');
-  if (!container) return;
-
-  if (requests.length === 0) {
-    container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucune demande de rendez-vous en attente.</p>';
-    return;
-  }
-
-  container.innerHTML = requests.map(req => `
-    <div class="appointment-item status-pending" >
-      <div class="appointment-info">
-        <h4>${req.clientName}</h4>
-        <div class="appointment-meta">
-          <span>📅 ${req.preferredDate}</span>
-          <span>🕒 ${req.preferredTime}</span>
-          <span>📞 ${req.clientPhone || 'Non renseigné'}</span>
-        </div>
-        <div style="margin-top: 8px; font-size: 0.9em;">
-            <div>📧 ${req.clientEmail}</div>
-            <div>💼 ${req.serviceType}</div>
-            ${req.message ? `<div>💬 "${req.message}"</div>` : ''}
-        </div>
-      </div>
-      <div class="appointment-actions">
-        <button class="btn-sm btn-primary" onclick="validateRequest('${req.id}')">✅ Valider</button>
-        <button class="btn-sm btn-delete" onclick="rejectRequest('${req.id}')">❌ Refuser</button>
-      </div>
-    </div >
-    `).join('');
-}
-
-function validateRequest(id) {
-  const req = requests.find(r => r.id === id);
-  if (!req) return;
-
-  // Create new appointment from request
-  const newAppointment = {
-    id: Date.now().toString(),
-    clientName: req.clientName,
-    clientEmail: req.clientEmail,
-    clientPhone: req.clientPhone,
-    serviceType: req.serviceType,
-    date: req.preferredDate,
-    time: req.preferredTime,
-    duration: "60", // Default duration
-    status: "confirmed",
-    location: "À définir",
-    notes: req.message || "Validé depuis les demandes en ligne"
-  };
-
-  appointments.push(newAppointment);
-  saveAppointments();
-
-  // Remove from requests
-  requests = requests.filter(r => r.id !== id);
-  saveRequests();
-
-  updateDashboard();
-  alert('✅ Rendez-vous validé et ajouté au calendrier !');
-}
-
-function rejectRequest(id) {
-  if (!confirm('Refuser cette demande de rendez-vous ?')) return;
-  requests = requests.filter(r => r.id !== id);
-  saveRequests();
-  renderRequests();
-}
-
 function renderContacts() {
-  console.log('DEBUG: renderContacts called. Contacts count:', contacts.length);
   const container = document.getElementById('contacts-list');
-  if (!container) {
-    console.error('DEBUG: contacts-list container NOT FOUND');
+  const statusFilter = document.getElementById('contact-status-filter').value;
+
+  let filtered = contacts;
+  if (statusFilter !== 'all') {
+    filtered = filtered.filter(c => c.status === statusFilter);
+  }
+
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Aucun message</td></tr>';
     return;
   }
 
-  if (contacts.length === 0) {
-    container.innerHTML = '<tr><td colspan="6" style="padding: 32px; text-align: center; color: var(--text-light);">Aucun message.</td></tr>';
-    return;
-  }
-
-  container.innerHTML = contacts.map(contact => `
-    <tr style="border-bottom: 1px solid var(--border);">
-      <td style="padding: 16px;">${new Date(contact.date).toLocaleDateString()}</td>
-      <td style="padding: 16px;"><strong>${contact.name}</strong></td>
-      <td style="padding: 16px;">${contact.email}</td>
-      <td style="padding: 16px;">${contact.subject || 'Pas de sujet'}</td>
+  container.innerHTML = filtered.map(msg => `
+    <tr style="border-bottom: 1px solid var(--border); background: ${msg.status === 'unread' ? '#f0f9ff' : 'transparent'}">
+      <td style="padding: 16px;">${new Date(msg.date).toLocaleDateString()}</td>
+      <td style="padding: 16px;">${msg.name}</td>
+      <td style="padding: 16px;">${msg.email}</td>
       <td style="padding: 16px;">
-        <span class="status-badge status-${contact.status}">${contact.status === 'unread' ? 'Non lu' : 'Lu'}</span>
+        <span class="status-badge status-${msg.status === 'unread' ? 'pending' : 'completed'}">
+          ${msg.status === 'unread' ? 'Non lu' : 'Lu'}
+        </span>
       </td>
       <td style="padding: 16px;">
-        <div style="display: flex; gap: 8px;">
-           <a href="mailto:${contact.email}" class="btn-sm btn-secondary">↩️</a>
-           <button class="btn-sm btn-delete" onclick="deleteContact('${contact.id}')">🗑️</button>
-        </div>
+        <button class="btn-sm btn-secondary" onclick="viewContact('${msg.id}')">👁️ Voir</button>
+        <button class="btn-sm btn-delete" onclick="deleteContact('${msg.id}')">🗑️</button>
       </td>
     </tr>
-    ${contact.message ? `
-    <tr style="background-color: var(--bg-main);">
-        <td colspan="6" style="padding: 12px 16px; font-style: italic; color: var(--text-light); border-bottom: 1px solid var(--border);">
-            "${contact.message}"
-        </td>
-    </tr>
-    ` : ''}
   `).join('');
+}
+
+function viewContact(id) {
+  const msg = contacts.find(c => c.id === id);
+  if (!msg) return;
+
+  alert(`De: ${msg.name}\nEmail: ${msg.email}\nSujet: ${msg.subject}\n\nMessage:\n${msg.message}`);
+
+  if (msg.status === 'unread') {
+    msg.status = 'read';
+    saveContacts();
+    renderContacts();
+    updateDashboard();
+  }
 }
 
 function deleteContact(id) {
@@ -1388,225 +1331,28 @@ function deleteContact(id) {
 }
 
 function performContactDeletion(id) {
-  console.log('DEBUG: performContactDeletion called for id:', id);
-  const initialCount = contacts.length;
   contacts = contacts.filter(c => c.id !== id);
-  console.log(`DEBUG: Deleted. Count: ${initialCount} -> ${contacts.length}`);
-
   saveContacts();
   renderContacts();
-
-  console.log('DEBUG: Calling updateBadges()...');
-  updateBadges();
 }
 
-// ==========================================
-// BACKUP SYSTEM
-// ==========================================
-
-function createBackup() {
-  const backupData = {
-    timestamp: new Date().toISOString(),
-    version: "1.0",
-    data: {
-      appointments: appointments,
-      requests: requests,
-      contacts: contacts,
-      clients: clients,
-      invoices: invoices
-    }
-  };
-
-  const dataStr = JSON.stringify(backupData, null, 2);
-  const blob = new Blob([dataStr], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `mascarin_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  // Update last backup info
-  const infoEl = document.getElementById('last-backup-info');
-  if (infoEl) {
-    infoEl.textContent = `Dernière sauvegarde: ${new Date().toLocaleString()} `;
-  }
-}
-
-function toggleAutoBackup() {
-  const btn = document.getElementById('auto-backup-toggle');
-  const status = document.getElementById('auto-backup-status');
-
-  let isAuto = localStorage.getItem('mascarinAutoBackup') === 'true';
-
-  if (isAuto) {
-    localStorage.setItem('mascarinAutoBackup', 'false');
-    btn.textContent = 'Activer la sauvegarde auto';
-    btn.classList.remove('btn-primary');
-    btn.classList.add('btn-secondary');
-    status.textContent = 'Sauvegarde automatique désactivée';
-  } else {
-    localStorage.setItem('mascarinAutoBackup', 'true');
-    btn.textContent = 'Désactiver la sauvegarde auto';
-    btn.classList.remove('btn-secondary');
-    btn.classList.add('btn-primary');
-    status.textContent = '✅ Active (toutes les heures)';
-    createBackup(); // Immediate backup
-  }
-}
-
-// Initialize Auto Backup Check
-if (localStorage.getItem('mascarinAutoBackup') === 'true') {
-  setInterval(() => {
-    console.log('Performing auto-backup...');
-    createBackup();
-  }, 3600000); // 1 hour
-}
-
-// Expose new functions
-window.validateRequest = validateRequest;
-window.rejectRequest = rejectRequest;
-window.deleteContact = deleteContact;
-window.createBackup = createBackup;
-window.toggleAutoBackup = toggleAutoBackup;
-
-// Initial Load for new modules
-loadRequests();
-loadContacts();
-
-// ==========================================
-// REAL-TIME NOTIFICATIONS
-// ==========================================
-
+// REALTIME LISTENERS
 function setupRealtimeListeners() {
   window.addEventListener('storage', (e) => {
-    if (e.key === 'mascarinRequests') {
-      // Reload requests
+    if (e.key === 'mascarinAppointments') {
+      loadAppointments();
+      updateDashboard();
+    } else if (e.key === 'mascarinRequests') {
       loadRequests();
-
-      // If we are on the requests view, re-render
-      if (currentView === 'requests') {
-        renderRequests();
-      }
-
-      // Update stats
-      updateStats();
-
-      // Show notification
-      const newRequests = JSON.parse(e.newValue || '[]');
-      const oldRequests = JSON.parse(e.oldValue || '[]');
-
-      if (newRequests.length > oldRequests.length) {
-        showNotification('📅 Nouvelle demande de rendez-vous reçue !', 'info');
-      }
-    }
-
-    if (e.key === 'mascarinContacts') {
-      // Reload contacts
+      renderRequests();
+      updateDashboard();
+    } else if (e.key === 'mascarinContacts') {
       loadContacts();
-
-      // If we are on the contacts view, re-render
-      if (currentView === 'contacts') {
-        renderContacts();
-      }
-
-      // Show notification
-      const newContacts = JSON.parse(e.newValue || '[]');
-      const oldContacts = JSON.parse(e.oldValue || '[]');
-
-      if (newContacts.length > oldContacts.length) {
-        showNotification('📧 Nouveau message de contact reçu !', 'info');
-      }
+      renderContacts();
+      updateDashboard();
     }
   });
 }
-
-function showNotification(message, type = 'info') {
-  // Create toast element if it doesn't exist
-  let toast = document.getElementById('notification-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'notification-toast';
-    toast.className = 'notification-toast';
-    document.body.appendChild(toast);
-  }
-
-  // Set content and type
-  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-
-  toast.className = `notification-toast type-${type}`;
-  toast.innerHTML = `
-    <span class="notification-icon">${icon}</span>
-    <span class="notification-message">${message}</span>
-  `;
-
-  // Show
-  setTimeout(() => toast.classList.add('active'), 10);
-
-  // Hide after 5 seconds
-  setTimeout(() => {
-    toast.classList.remove('active');
-  }, 5000);
-}
-
-// Debug Function
-window.debugBadges = function () {
-  const saved = localStorage.getItem('mascarinContacts');
-  let count = 0;
-  let parsed = [];
-
-  try {
-    parsed = JSON.parse(saved || '[]');
-    count = parsed.filter(c => c.status === 'unread').length;
-  } catch (e) {
-    console.error('DEBUG: Parse error', e);
-  }
-
-  const badge = document.getElementById('contacts-badge');
-
-  const msg = `État actuel :
-- LocalStorage : ${saved ? 'Données présentes' : 'VIDE'}
-- Messages total : ${parsed.length}
-- Non-lus : ${count}
-- Badge visible : ${badge && badge.style.display !== 'none' ? 'OUI' : 'NON'}
-
-Voulez-vous injecter un MESSAGE DE TEST pour vérifier le compteur ?`;
-
-  if (confirm(msg)) {
-    const testMsg = {
-      id: 'debug_' + Date.now(),
-      name: 'Debug User',
-      email: 'debug@test.com',
-      message: 'Ceci est un message de test injecté.',
-      status: 'unread',
-      date: new Date().toISOString()
-    };
-
-    const newData = [...parsed, testMsg];
-    localStorage.setItem('mascarinContacts', JSON.stringify(newData));
-
-    // Force reload and render
-    console.log('DEBUG: Injecting message and reloading...');
-    loadContacts();
-    updateBadges();
-
-    if (currentView === 'contacts') {
-      renderContacts();
-    } else {
-      switchView('contacts');
-    }
-
-    alert('Message injecté ! Le badge devrait afficher ' + (count + 1));
-  }
-
-  if (confirm("Voulez-vous stopper le rafraîchissement automatique (pour que le badge ne disparaisse pas) ?")) {
-    if (window.badgeInterval) clearInterval(window.badgeInterval);
-    alert("Rafraîchissement stoppé.");
-  }
-};
 
 function updateBadges() {
   // Requests Badge
@@ -1618,22 +1364,7 @@ function updateBadges() {
   }
 
   // Contacts Badge
-  let contactsData = [];
-  try {
-    const saved = localStorage.getItem('mascarinContacts');
-    if (saved) {
-      contactsData = JSON.parse(saved);
-    }
-  } catch (e) {
-    console.warn('Error parsing contacts for badges:', e);
-    contactsData = [];
-  }
-
-  if (!Array.isArray(contactsData)) {
-    contactsData = [];
-  }
-
-  const unreadContacts = contactsData.filter(c => c.status === 'unread').length;
+  const unreadContacts = contacts.filter(c => c.status === 'unread').length;
   const contactsBadge = document.getElementById('contacts-badge');
   if (contactsBadge) {
     contactsBadge.textContent = unreadContacts;
@@ -1641,269 +1372,48 @@ function updateBadges() {
   }
 }
 
-
-// Contact Management Functions
-
-function renderContacts() {
-  const container = document.getElementById('contacts-list');
-  if (!container) {
-    return;
-  }
-
-  const statusFilter = document.getElementById('contact-status-filter') ? document.getElementById('contact-status-filter').value : 'all';
-
-  let filteredContacts = contacts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  if (statusFilter !== 'all') {
-    filteredContacts = filteredContacts.filter(c => c.status === statusFilter);
-  }
-
-  if (filteredContacts.length === 0) {
-    container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 32px; color: var(--text-light);">Aucun message.</td></tr>';
-    return;
-  }
-
-  container.innerHTML = filteredContacts.map(contact => `
-    <tr class="contact-item ${contact.status === 'unread' ? 'unread' : ''}" style="${contact.status === 'unread' ? 'font-weight: bold; background-color: rgba(var(--primary-rgb), 0.05);' : ''}">
-      <td style="padding: 16px;">${new Date(contact.date).toLocaleDateString('fr-FR')} ${new Date(contact.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</td>
-      <td style="padding: 16px;">${contact.name}</td>
-      <td style="padding: 16px;">${contact.email}</td>
-      <td style="padding: 16px;">
-        <span class="status-badge status-${contact.status}" style="padding: 4px 8px; border-radius: 12px; font-size: 0.85em; background: ${getStatusColor(contact.status)}; color: white;">
-          ${getStatusLabel(contact.status)}
-        </span>
-      </td>
-      <td style="padding: 16px;">
-        <button class="btn-icon" onclick="viewContact('${contact.id}')" title="Voir" style="background:none; border:none; cursor:pointer; font-size:1.2em;">👁️</button>
-        <button class="btn-icon" onclick="toggleArchiveContact('${contact.id}')" title="${contact.status === 'archived' ? 'Désarchiver' : 'Archiver'}" style="background:none; border:none; cursor:pointer; font-size:1.2em;">${contact.status === 'archived' ? '📂' : '📦'}</button>
-        <button class="btn-icon delete-btn" onclick="deleteContact('${contact.id}')" title="Supprimer" style="background:none; border:none; cursor:pointer; font-size:1.2em;">🗑️</button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function filterContacts() {
-  renderContacts();
-}
-
-function getStatusColor(status) {
-  switch (status) {
-    case 'unread': return '#3b82f6'; // Blue
-    case 'read': return '#10b981'; // Green
-    case 'archived': return '#6b7280'; // Gray
-    default: return '#9ca3af';
-  }
-}
-
-function getStatusLabel(status) {
-  switch (status) {
-    case 'unread': return 'Non lu';
-    case 'read': return 'Lu';
-    case 'archived': return 'Archivé';
-    default: return status;
-  }
-}
-
-function viewContact(id) {
-  const contact = contacts.find(c => c.id === id);
-  if (!contact) return;
-
-  // Mark as read if unread
-  if (contact.status === 'unread') {
-    contact.status = 'read';
-    saveContacts();
-    updateBadges();
-    renderContacts();
-  }
-
-  const modalHtml = `
-    <div id="contact-view-modal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
-      <div class="modal-content" style="background: white; padding: 0; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <div class="modal-header" style="padding: 16px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-          <h3 style="margin: 0;">Message de ${contact.name}</h3>
-          <button class="modal-close" onclick="document.getElementById('contact-view-modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
-        </div>
-        <div style="padding: 24px;">
-          <div style="margin-bottom: 16px;">
-            <strong>De:</strong> ${contact.name} (${contact.email})<br>
-            <strong>Date:</strong> ${new Date(contact.date).toLocaleString('fr-FR')}<br>
-            <strong>Sujet:</strong> ${contact.subject}
-          </div>
-          <div style="background: #f9fafb; padding: 16px; border-radius: 8px; white-space: pre-wrap; margin-bottom: 24px;">${contact.message}</div>
-          <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px;">
-            <button class="btn-secondary" onclick="document.getElementById('contact-view-modal').remove()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer;">Fermer</button>
-            <a href="mailto:${contact.email}?subject=Re: ${contact.subject}" class="btn-primary" style="padding: 8px 16px; border-radius: 6px; background: #2563eb; color: white; text-decoration:none; display:inline-block;">Répondre</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', modalHtml);
-}
-
-function toggleArchiveContact(id) {
-  const contact = contacts.find(c => c.id === id);
-  if (contact) {
-    contact.status = contact.status === 'archived' ? 'read' : 'archived';
-    saveContacts();
-    renderContacts();
-  }
-}
-
-function deleteContact(id) {
-  if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
-    contacts = contacts.filter(c => c.id !== id);
-    saveContacts();
-    updateBadges();
-    renderContacts();
-  }
-}
-
-// ==========================================
-// PRINTING FUNCTIONALITY
-// ==========================================
-
-function printCurrentInvoice() {
-  // If we are editing an existing invoice, print it by ID
-  if (editingInvoiceId) {
-    printInvoice(editingInvoiceId);
-  } else {
-    // If it's a new invoice (unsaved), we could gather form data, 
-    // but it's safer to ask user to save first.
-    alert("Veuillez d'abord enregistrer le document avant de l'imprimer.");
-  }
-}
-
-function printInvoice(id) {
-  const invoice = invoices.find(i => i.id === id);
-  if (!invoice) return;
-
-  const client = clients.find(c => c.id === invoice.clientId) || {
-    name: invoice.clientName || 'Client inconnu',
-    address: '',
-    email: invoice.clientEmail || ''
-  };
-
-  const printWindow = window.open('', '_blank');
-
-  const html = `
-        <!DOCTYPE html>
-        <html lang="fr">
-        <head>
-            <meta charset="UTF-8">
-            <title>${invoice.type === 'quote' ? 'Devis' : 'Facture'} - ${invoice.number}</title>
-            <style>
-                body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; line-height: 1.6; padding: 40px; max-width: 800px; margin: 0 auto; }
-                .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-                .company-info h1 { margin: 0; color: #b45309; font-size: 24px; }
-                .company-info p { margin: 5px 0; font-size: 14px; color: #666; }
-                .invoice-info { text-align: right; }
-                .invoice-info h2 { margin: 0; font-size: 28px; color: #333; }
-                .invoice-info p { margin: 5px 0; }
-                .client-section { margin-bottom: 40px; }
-                .client-section h3 { margin-bottom: 10px; font-size: 16px; color: #666; text-transform: uppercase; }
-                .client-box { background: #f9fafb; padding: 20px; border-radius: 8px; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-                th { text-align: left; padding: 12px; background: #f3f4f6; border-bottom: 2px solid #e5e7eb; font-weight: 600; }
-                td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-                .totals { margin-left: auto; width: 300px; }
-                .total-row { display: flex; justify-content: space-between; padding: 8px 0; }
-                .total-row.final { font-weight: bold; font-size: 1.2em; border-top: 2px solid #333; margin-top: 10px; padding-top: 10px; }
-                .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #999; }
-                .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; border: 1px solid #ccc; }
-                @media print {
-                    body { padding: 0; }
-                    .no-print { display: none; }
-                }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <div class="company-info">
-                    <h1>Mascarin Consulting</h1>
-                    <p>Christian ABONNEL</p>
-                    <p>La Réunion / Océan Indien / International</p>
-                    <p>Email: mascarinconsulting@outlook.fr</p>
-                    <p>Tél: 0692 74 30 40</p>
-                    <p>SIRET: 953 401 874 00011</p>
-                </div>
-                <div class="invoice-info">
-                    <h2>${invoice.type === 'quote' ? 'DEVIS' : 'FACTURE'}</h2>
-                    <p><strong>N° :</strong> ${invoice.number}</p>
-                    <p><strong>Date :</strong> ${new Date(invoice.date).toLocaleDateString('fr-FR')}</p>
-                    <p><strong>Échéance :</strong> ${new Date(invoice.dueDate).toLocaleDateString('fr-FR')}</p>
-                </div>
-            </div>
-
-            <div class="client-section">
-                <h3>Destinataire</h3>
-                <div class="client-box">
-                    <strong>${client.name}</strong><br>
-                    ${client.address ? client.address.replace(/\n/g, '<br>') : ''}<br>
-                    ${client.email ? client.email : ''}<br>
-                    ${client.phone ? client.phone : ''}
-                </div>
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th style="text-align: center;">Qté</th>
-                        <th style="text-align: right;">Prix Unit.</th>
-                        <th style="text-align: right;">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${invoice.items.map(item => `
-                    <tr>
-                        <td>${item.description}</td>
-                        <td style="text-align: center;">${item.qty}</td>
-                        <td style="text-align: right;">${parseFloat(item.price).toFixed(2)} €</td>
-                        <td style="text-align: right;">${(item.qty * item.price).toFixed(2)} €</td>
-                    </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-
-            <div class="totals">
-                <div class="total-row">
-                    <span>Sous-total HT :</span>
-                    <span>${(invoice.total / 1.085).toFixed(2)} €</span>
-                </div>
-                <div class="total-row">
-                    <span>TVA (8.5%) :</span>
-                    <span>${(invoice.total - (invoice.total / 1.085)).toFixed(2)} €</span>
-                </div>
-                <div class="total-row final">
-                    <span>Total TTC :</span>
-                    <span>${parseFloat(invoice.total).toFixed(2)} €</span>
-                </div>
-            </div>
-
-            ${invoice.notes ? `
-            <div style="margin-top: 40px; padding: 20px; background: #fffbeb; border-radius: 4px;">
-                <strong>Notes / Conditions :</strong><br>
-                ${invoice.notes.replace(/\n/g, '<br>')}
-            </div>
-            ` : ''}
-
-            <div class="footer">
-                <p>Mascarin Consulting - SIRET 953 401 874 00011 - RCS Saint-Pierre de la Réunion</p>
-                <p>Dispensé d'immatriculation au registre du commerce et des sociétés (RCS) et au répertoire des métiers (RM)</p>
-            </div>
-
-            <script>
-                window.onload = function() { window.print(); }
-            </script>
-        </body>
-        </html>
-    `;
-
-  printWindow.document.write(html);
-  printWindow.document.close();
-}
-
-// Expose to window
-window.printCurrentInvoice = printCurrentInvoice;
+// Window Assignments
+window.editAppointment = editAppointment;
+window.deleteAppointment = deleteAppointment;
+window.exportAppointments = exportAppointments;
+window.importAppointments = importAppointments;
+window.clearAllData = clearAllData;
+window.showDayAppointments = showDayAppointments;
+window.closeDayModal = closeDayModal;
+window.addAppointmentForDay = addAppointmentForDay;
+window.deleteAppointmentFromDay = deleteAppointmentFromDay;
+window.closeConfirmationModal = closeConfirmationModal;
+window.showNewAppointmentModal = showNewAppointmentModal;
+window.switchView = switchView;
+window.handleLogin = handleLogin;
+window.debugBadges = () => { console.log('Requests:', requests); console.log('Contacts:', contacts); };
+window.showNewClientModal = showNewClientModal;
+window.closeClientModal = closeClientModal;
+window.editClient = editClient;
+window.showNewInvoiceModal = showNewInvoiceModal;
+window.closeInvoiceModal = closeInvoiceModal;
+window.addInvoiceItem = addInvoiceItem;
+window.calculateInvoiceTotals = calculateInvoiceTotals;
+window.handleInvoiceClientChange = handleInvoiceClientChange;
+window.updateInvoiceNumberPrefix = updateInvoiceNumberPrefix;
+window.editInvoice = editInvoice;
+window.deleteInvoice = deleteInvoice;
 window.printInvoice = printInvoice;
+window.loadRequests = () => { loadRequests(); renderRequests(); };
+window.filterRequests = renderRequests;
+window.convertRequestToAppointment = convertRequestToAppointment;
+window.archiveRequest = archiveRequest;
+window.loadContacts = () => { loadContacts(); renderContacts(); };
+window.filterContacts = renderContacts;
+window.viewContact = viewContact;
+window.deleteContact = deleteContact;
+window.resetApp = resetApp;
+window.handleRestoreFile = (input) => {
+  // Placeholder for backup-restore.js functionality
+  if (window.handleRestoreFileImpl) window.handleRestoreFileImpl(input);
+};
+window.performRestore = () => {
+  if (window.performRestoreImpl) window.performRestoreImpl();
+};
+
+console.log('Admin Dashboard Script Loaded (Full Rewrite v37)');
