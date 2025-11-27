@@ -789,189 +789,79 @@ function performDayDeletion(id) {
     }
   } catch (error) {
     console.error('Error in performDayDeletion:', error);
-  }
-}
 
-// CLIENTS MANAGEMENT
-function loadClients() {
-  const saved = localStorage.getItem('mascarinClients');
-  if (saved) {
-    clients = JSON.parse(saved);
-  }
-}
+    editingClientId = id;
+    document.getElementById('client-modal-title').textContent = 'Modifier Client';
+    document.getElementById('client-form-name').value = client.name;
+    document.getElementById('client-form-email').value = client.email || '';
+    document.getElementById('client-form-phone').value = client.phone || '';
+    document.getElementById('client-form-address').value = client.address || '';
+    document.getElementById('client-form-notes').value = client.notes || '';
 
-function saveClients() {
-  localStorage.setItem('mascarinClients', JSON.stringify(clients));
-}
-
-function renderClients() {
-  const container = document.getElementById('clients-list');
-  const searchTerm = document.getElementById('search-clients').value.toLowerCase();
-
-  let filtered = clients;
-  if (searchTerm) {
-    filtered = filtered.filter(c =>
-      c.name.toLowerCase().includes(searchTerm) ||
-      c.email?.toLowerCase().includes(searchTerm) ||
-      c.phone?.includes(searchTerm)
-    );
+    document.getElementById('client-modal').classList.add('active');
   }
 
-  if (filtered.length === 0) {
-    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-light);">Aucun client trouvé</p>';
-    return;
+  function updateClientSelect() {
+    const selects = ['client-select', 'invoice-client-select'];
+
+    selects.forEach(selectId => {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+
+      const currentValue = select.value;
+      select.innerHTML = '<option value="">Sélectionner un client...</option>';
+
+      clients.sort((a, b) => a.name.localeCompare(b.name)).forEach(client => {
+        const option = document.createElement('option');
+        option.value = client.id;
+        option.textContent = client.name;
+        option.dataset.email = client.email || '';
+        option.dataset.phone = client.phone || '';
+        select.appendChild(option);
+      });
+
+      if (currentValue) select.value = currentValue;
+    });
   }
 
-  container.innerHTML = filtered.map(client => {
-    // Calculate client stats
-    const clientApts = appointments.filter(a => a.clientId === client.id);
-    const totalSpent = invoices
-      .filter(i => i.clientId === client.id && i.status === 'paid')
-      .reduce((sum, i) => sum + i.total, 0);
-
-    return `
-      <div class="client-card">
-        <div style="display: flex; justify-content: space-between; align-items: start;">
-          <h4>${client.name}</h4>
-          <button class="btn-sm btn-edit" onclick="editClient('${client.id}')">✏️</button>
-        </div>
-        <div class="client-info">
-          ${client.email ? `<div>📧 ${client.email}</div>` : ''}
-          ${client.phone ? `<div>📞 ${client.phone}</div>` : ''}
-          ${client.address ? `<div>📍 ${client.address}</div>` : ''}
-        </div>
-        <div class="client-stats">
-          <div class="client-stat">
-            <div class="client-stat-value">${clientApts.length}</div>
-            <div class="client-stat-label">Rendez-vous</div>
-          </div>
-          <div class="client-stat">
-            <div class="client-stat-value">${totalSpent.toFixed(2)}€</div>
-            <div class="client-stat-label">Chiffre d'affaires</div>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function showNewClientModal() {
-  editingClientId = null;
-  document.getElementById('client-modal-title').textContent = 'Nouveau Client';
-  document.getElementById('client-form').reset();
-  document.getElementById('client-modal').classList.add('active');
-}
-
-function closeClientModal() {
-  document.getElementById('client-modal').classList.remove('active');
-}
-
-function handleClientSubmit(e) {
-  e.preventDefault();
-
-  const formData = {
-    name: document.getElementById('client-form-name').value,
-    email: document.getElementById('client-form-email').value,
-    phone: document.getElementById('client-form-phone').value,
-    address: document.getElementById('client-form-address').value,
-    notes: document.getElementById('client-form-notes').value
-  };
-
-  if (editingClientId) {
-    const index = clients.findIndex(c => c.id === editingClientId);
-    if (index !== -1) {
-      clients[index] = { ...clients[index], ...formData };
+  // INVOICES MANAGEMENT
+  function loadInvoices() {
+    const saved = localStorage.getItem('mascarinInvoices');
+    if (saved) {
+      invoices = JSON.parse(saved);
     }
-  } else {
-    clients.push({
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      ...formData
-    });
   }
 
-  saveClients();
-  renderClients();
-  updateClientSelect();
-  closeClientModal();
-}
-
-function editClient(id) {
-  const client = clients.find(c => c.id === id);
-  if (!client) return;
-
-  editingClientId = id;
-  document.getElementById('client-modal-title').textContent = 'Modifier Client';
-  document.getElementById('client-form-name').value = client.name;
-  document.getElementById('client-form-email').value = client.email || '';
-  document.getElementById('client-form-phone').value = client.phone || '';
-  document.getElementById('client-form-address').value = client.address || '';
-  document.getElementById('client-form-notes').value = client.notes || '';
-
-  document.getElementById('client-modal').classList.add('active');
-}
-
-function updateClientSelect() {
-  const selects = ['client-select', 'invoice-client-select'];
-
-  selects.forEach(selectId => {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-
-    const currentValue = select.value;
-    select.innerHTML = '<option value="">Sélectionner un client...</option>';
-
-    clients.sort((a, b) => a.name.localeCompare(b.name)).forEach(client => {
-      const option = document.createElement('option');
-      option.value = client.id;
-      option.textContent = client.name;
-      option.dataset.email = client.email || '';
-      option.dataset.phone = client.phone || '';
-      select.appendChild(option);
-    });
-
-    if (currentValue) select.value = currentValue;
-  });
-}
-
-// INVOICES MANAGEMENT
-function loadInvoices() {
-  const saved = localStorage.getItem('mascarinInvoices');
-  if (saved) {
-    invoices = JSON.parse(saved);
-  }
-}
-
-function saveInvoices() {
-  localStorage.setItem('mascarinInvoices', JSON.stringify(invoices));
-}
-
-function renderInvoicesTable() {
-  const container = document.getElementById('invoices-list');
-  const typeFilter = document.getElementById('invoice-type-filter').value;
-  const searchTerm = document.getElementById('search-invoices').value.toLowerCase();
-
-  let filtered = invoices;
-
-  if (typeFilter !== 'all') {
-    filtered = filtered.filter(i => i.type === typeFilter);
+  function saveInvoices() {
+    localStorage.setItem('mascarinInvoices', JSON.stringify(invoices));
   }
 
-  if (searchTerm) {
-    filtered = filtered.filter(i =>
-      i.number.toLowerCase().includes(searchTerm) ||
-      i.clientName.toLowerCase().includes(searchTerm)
-    );
-  }
+  function renderInvoicesTable() {
+    const container = document.getElementById('invoices-list');
+    const typeFilter = document.getElementById('invoice-type-filter').value;
+    const searchTerm = document.getElementById('search-invoices').value.toLowerCase();
 
-  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    let filtered = invoices;
 
-  if (filtered.length === 0) {
-    container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucun document trouvé</p>';
-    return;
-  }
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(i => i.type === typeFilter);
+    }
 
-  container.innerHTML = `
+    if (searchTerm) {
+      filtered = filtered.filter(i =>
+        i.number.toLowerCase().includes(searchTerm) ||
+        i.clientName.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucun document trouvé</p>';
+      return;
+    }
+
+    container.innerHTML = `
     <table style="width: 100%; border-collapse: collapse;">
       <thead>
         <tr style="border-bottom: 2px solid var(--border); text-align: left;">
@@ -1006,60 +896,60 @@ function renderInvoicesTable() {
       </tbody>
     </table>
   `;
-}
-
-function showNewInvoiceModal() {
-  editingInvoiceId = null;
-  document.getElementById('invoice-modal-title').textContent = 'Nouveau Document';
-  document.getElementById('invoice-form').reset();
-  document.getElementById('invoice-items-list').innerHTML = '';
-  addInvoiceItem(); // Add one empty row
-
-  // Set defaults
-  document.getElementById('invoice-date').valueAsDate = new Date();
-  const dueDate = new Date();
-  dueDate.setDate(dueDate.getDate() + 30);
-  document.getElementById('invoice-due-date').valueAsDate = dueDate;
-
-  updateInvoiceNumberPrefix();
-  updateClientSelect();
-
-  document.getElementById('invoice-modal').classList.add('active');
-}
-
-function closeInvoiceModal() {
-  document.getElementById('invoice-modal').classList.remove('active');
-}
-
-function updateInvoiceNumberPrefix() {
-  const type = document.getElementById('invoice-type').value;
-  const prefix = type === 'invoice' ? 'FAC-' : 'DEV-';
-  const year = new Date().getFullYear();
-  const count = invoices.filter(i => i.type === type).length + 1;
-  document.getElementById('invoice-number').value = `${prefix}${year}-${String(count).padStart(4, '0')}`;
-}
-
-function handleInvoiceClientChange() {
-  const select = document.getElementById('invoice-client-select');
-  const emailInput = document.getElementById('invoice-client-email');
-  const nameInput = document.getElementById('invoice-client-name');
-
-  if (select.selectedIndex > 0) {
-    const option = select.options[select.selectedIndex];
-    emailInput.value = option.dataset.email || '';
-    nameInput.value = option.text;
-  } else {
-    emailInput.value = '';
-    nameInput.value = '';
   }
-}
 
-function addInvoiceItem(item = null) {
-  const tbody = document.getElementById('invoice-items-list');
-  const tr = document.createElement('tr');
-  tr.style.borderBottom = '1px solid var(--border)';
+  function showNewInvoiceModal() {
+    editingInvoiceId = null;
+    document.getElementById('invoice-modal-title').textContent = 'Nouveau Document';
+    document.getElementById('invoice-form').reset();
+    document.getElementById('invoice-items-list').innerHTML = '';
+    addInvoiceItem(); // Add one empty row
 
-  tr.innerHTML = `
+    // Set defaults
+    document.getElementById('invoice-date').valueAsDate = new Date();
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 30);
+    document.getElementById('invoice-due-date').valueAsDate = dueDate;
+
+    updateInvoiceNumberPrefix();
+    updateClientSelect();
+
+    document.getElementById('invoice-modal').classList.add('active');
+  }
+
+  function closeInvoiceModal() {
+    document.getElementById('invoice-modal').classList.remove('active');
+  }
+
+  function updateInvoiceNumberPrefix() {
+    const type = document.getElementById('invoice-type').value;
+    const prefix = type === 'invoice' ? 'FAC-' : 'DEV-';
+    const year = new Date().getFullYear();
+    const count = invoices.filter(i => i.type === type).length + 1;
+    document.getElementById('invoice-number').value = `${prefix}${year}-${String(count).padStart(4, '0')}`;
+  }
+
+  function handleInvoiceClientChange() {
+    const select = document.getElementById('invoice-client-select');
+    const emailInput = document.getElementById('invoice-client-email');
+    const nameInput = document.getElementById('invoice-client-name');
+
+    if (select.selectedIndex > 0) {
+      const option = select.options[select.selectedIndex];
+      emailInput.value = option.dataset.email || '';
+      nameInput.value = option.text;
+    } else {
+      emailInput.value = '';
+      nameInput.value = '';
+    }
+  }
+
+  function addInvoiceItem(item = null) {
+    const tbody = document.getElementById('invoice-items-list');
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid var(--border)';
+
+    tr.innerHTML = `
     <td style="padding: 8px;">
       <input type="text" class="item-desc" placeholder="Description" value="${item ? item.description : ''}" required style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
     </td>
@@ -1077,147 +967,147 @@ function addInvoiceItem(item = null) {
     </td>
   `;
 
-  tbody.appendChild(tr);
-  calculateInvoiceTotals();
-}
-
-function calculateInvoiceTotals() {
-  let subtotal = 0;
-  const rows = document.querySelectorAll('#invoice-items-list tr');
-
-  rows.forEach(row => {
-    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-    const price = parseFloat(row.querySelector('.item-price').value) || 0;
-    const total = qty * price;
-
-    row.querySelector('.item-total').textContent = total.toFixed(2) + ' €';
-    subtotal += total;
-  });
-
-  const tva = subtotal * 0.085; // 8.5% TVA
-  const total = subtotal + tva;
-
-  document.getElementById('invoice-subtotal').textContent = subtotal.toFixed(2) + ' €';
-  document.getElementById('invoice-tva').textContent = tva.toFixed(2) + ' €';
-  document.getElementById('invoice-total').textContent = total.toFixed(2) + ' €';
-
-  return { subtotal, tva, total };
-}
-
-function handleInvoiceSubmit(e) {
-  e.preventDefault();
-
-  const items = [];
-  document.querySelectorAll('#invoice-items-list tr').forEach(row => {
-    items.push({
-      description: row.querySelector('.item-desc').value,
-      qty: parseFloat(row.querySelector('.item-qty').value),
-      price: parseFloat(row.querySelector('.item-price').value)
-    });
-  });
-
-  const totals = calculateInvoiceTotals();
-
-  const formData = {
-    type: document.getElementById('invoice-type').value,
-    number: document.getElementById('invoice-number').value,
-    status: document.getElementById('invoice-status').value,
-    clientId: document.getElementById('invoice-client-select').value,
-    clientName: document.getElementById('invoice-client-name').value,
-    clientEmail: document.getElementById('invoice-client-email').value,
-    date: document.getElementById('invoice-date').value,
-    dueDate: document.getElementById('invoice-due-date').value,
-    notes: document.getElementById('invoice-notes').value,
-    items: items,
-    subtotal: totals.subtotal,
-    tva: totals.tva,
-    total: totals.total
-  };
-
-  if (editingInvoiceId) {
-    const index = invoices.findIndex(i => i.id === editingInvoiceId);
-    if (index !== -1) {
-      invoices[index] = { ...invoices[index], ...formData };
-    }
-  } else {
-    invoices.push({
-      id: Date.now().toString(),
-      ...formData
-    });
+    tbody.appendChild(tr);
+    calculateInvoiceTotals();
   }
 
-  saveInvoices();
-  renderInvoicesTable();
-  closeInvoiceModal();
-}
+  function calculateInvoiceTotals() {
+    let subtotal = 0;
+    const rows = document.querySelectorAll('#invoice-items-list tr');
 
-function editInvoice(id) {
-  const inv = invoices.find(i => i.id === id);
-  if (!inv) return;
+    rows.forEach(row => {
+      const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+      const price = parseFloat(row.querySelector('.item-price').value) || 0;
+      const total = qty * price;
 
-  editingInvoiceId = id;
-  document.getElementById('invoice-modal-title').textContent = 'Modifier Document';
-  document.getElementById('invoice-type').value = inv.type;
-  document.getElementById('invoice-number').value = inv.number;
-  document.getElementById('invoice-status').value = inv.status;
+      row.querySelector('.item-total').textContent = total.toFixed(2) + ' €';
+      subtotal += total;
+    });
 
-  updateClientSelect();
-  document.getElementById('invoice-client-select').value = inv.clientId;
-  document.getElementById('invoice-client-name').value = inv.clientName;
-  document.getElementById('invoice-client-email').value = inv.clientEmail;
+    const tva = subtotal * 0.085; // 8.5% TVA
+    const total = subtotal + tva;
 
-  document.getElementById('invoice-date').value = inv.date;
-  document.getElementById('invoice-due-date').value = inv.dueDate;
-  document.getElementById('invoice-notes').value = inv.notes || '';
+    document.getElementById('invoice-subtotal').textContent = subtotal.toFixed(2) + ' €';
+    document.getElementById('invoice-tva').textContent = tva.toFixed(2) + ' €';
+    document.getElementById('invoice-total').textContent = total.toFixed(2) + ' €';
 
-  const tbody = document.getElementById('invoice-items-list');
-  tbody.innerHTML = '';
-  inv.items.forEach(item => addInvoiceItem(item));
+    return { subtotal, tva, total };
+  }
 
-  document.getElementById('invoice-modal').classList.add('active');
-}
+  function handleInvoiceSubmit(e) {
+    e.preventDefault();
 
-function deleteInvoice(id) {
-  if (confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
-    invoices = invoices.filter(i => i.id !== id);
+    const items = [];
+    document.querySelectorAll('#invoice-items-list tr').forEach(row => {
+      items.push({
+        description: row.querySelector('.item-desc').value,
+        qty: parseFloat(row.querySelector('.item-qty').value),
+        price: parseFloat(row.querySelector('.item-price').value)
+      });
+    });
+
+    const totals = calculateInvoiceTotals();
+
+    const formData = {
+      type: document.getElementById('invoice-type').value,
+      number: document.getElementById('invoice-number').value,
+      status: document.getElementById('invoice-status').value,
+      clientId: document.getElementById('invoice-client-select').value,
+      clientName: document.getElementById('invoice-client-name').value,
+      clientEmail: document.getElementById('invoice-client-email').value,
+      date: document.getElementById('invoice-date').value,
+      dueDate: document.getElementById('invoice-due-date').value,
+      notes: document.getElementById('invoice-notes').value,
+      items: items,
+      subtotal: totals.subtotal,
+      tva: totals.tva,
+      total: totals.total
+    };
+
+    if (editingInvoiceId) {
+      const index = invoices.findIndex(i => i.id === editingInvoiceId);
+      if (index !== -1) {
+        invoices[index] = { ...invoices[index], ...formData };
+      }
+    } else {
+      invoices.push({
+        id: Date.now().toString(),
+        ...formData
+      });
+    }
+
     saveInvoices();
     renderInvoicesTable();
-  }
-}
-
-function printInvoice() {
-  window.print();
-}
-
-// REQUESTS MANAGEMENT
-function loadRequests() {
-  const saved = localStorage.getItem('mascarinRequests');
-  if (saved) {
-    requests = JSON.parse(saved);
-  }
-}
-
-function saveRequests() {
-  localStorage.setItem('mascarinRequests', JSON.stringify(requests));
-}
-
-function renderRequests() {
-  const container = document.getElementById('requests-list');
-  const statusFilter = document.getElementById('request-status-filter').value;
-
-  let filtered = requests;
-  if (statusFilter !== 'all') {
-    filtered = filtered.filter(r => r.status === statusFilter);
+    closeInvoiceModal();
   }
 
-  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+  function editInvoice(id) {
+    const inv = invoices.find(i => i.id === id);
+    if (!inv) return;
 
-  if (filtered.length === 0) {
-    container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Aucune demande trouvée</td></tr>';
-    return;
+    editingInvoiceId = id;
+    document.getElementById('invoice-modal-title').textContent = 'Modifier Document';
+    document.getElementById('invoice-type').value = inv.type;
+    document.getElementById('invoice-number').value = inv.number;
+    document.getElementById('invoice-status').value = inv.status;
+
+    updateClientSelect();
+    document.getElementById('invoice-client-select').value = inv.clientId;
+    document.getElementById('invoice-client-name').value = inv.clientName;
+    document.getElementById('invoice-client-email').value = inv.clientEmail;
+
+    document.getElementById('invoice-date').value = inv.date;
+    document.getElementById('invoice-due-date').value = inv.dueDate;
+    document.getElementById('invoice-notes').value = inv.notes || '';
+
+    const tbody = document.getElementById('invoice-items-list');
+    tbody.innerHTML = '';
+    inv.items.forEach(item => addInvoiceItem(item));
+
+    document.getElementById('invoice-modal').classList.add('active');
   }
 
-  container.innerHTML = filtered.map(req => `
+  function deleteInvoice(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
+      invoices = invoices.filter(i => i.id !== id);
+      saveInvoices();
+      renderInvoicesTable();
+    }
+  }
+
+  function printInvoice() {
+    window.print();
+  }
+
+  // REQUESTS MANAGEMENT
+  function loadRequests() {
+    const saved = localStorage.getItem('mascarinRequests');
+    if (saved) {
+      requests = JSON.parse(saved);
+    }
+  }
+
+  function saveRequests() {
+    localStorage.setItem('mascarinRequests', JSON.stringify(requests));
+  }
+
+  function renderRequests() {
+    const container = document.getElementById('requests-list');
+    const statusFilter = document.getElementById('request-status-filter').value;
+
+    let filtered = requests;
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(r => r.status === statusFilter);
+    }
+
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Aucune demande trouvée</td></tr>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(req => `
     <tr style="border-bottom: 1px solid var(--border);">
       <td style="padding: 16px;">${new Date(req.date).toLocaleDateString()}</td>
       <td style="padding: 16px;">${req.name}</td>
@@ -1237,64 +1127,64 @@ function renderRequests() {
       </td>
     </tr>
   `).join('');
-}
+  }
 
-function convertRequestToAppointment(id) {
-  const req = requests.find(r => r.id === id);
-  if (!req) return;
+  function convertRequestToAppointment(id) {
+    const req = requests.find(r => r.id === id);
+    if (!req) return;
 
-  showNewAppointmentModal();
+    showNewAppointmentModal();
 
-  // Pre-fill form
-  document.getElementById('client-name').value = req.name;
-  document.getElementById('client-email').value = req.email;
-  document.getElementById('client-phone').value = req.phone;
-  document.getElementById('appointment-type').value = req.service;
-  document.getElementById('appointment-notes').value = `Demande web du ${new Date(req.date).toLocaleDateString()}`;
+    // Pre-fill form
+    document.getElementById('client-name').value = req.name;
+    document.getElementById('client-email').value = req.email;
+    document.getElementById('client-phone').value = req.phone;
+    document.getElementById('appointment-type').value = req.service;
+    document.getElementById('appointment-notes').value = `Demande web du ${new Date(req.date).toLocaleDateString()}`;
 
-  // Mark as processed
-  req.status = 'processed';
-  saveRequests();
-}
-
-function archiveRequest(id) {
-  const req = requests.find(r => r.id === id);
-  if (req) {
-    req.status = 'archived';
+    // Mark as processed
+    req.status = 'processed';
     saveRequests();
-    renderRequests();
-  }
-}
-
-// CONTACTS MANAGEMENT
-function loadContacts() {
-  const saved = localStorage.getItem('mascarinContacts');
-  if (saved) {
-    contacts = JSON.parse(saved);
-  }
-}
-
-function saveContacts() {
-  localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
-}
-
-function renderContacts() {
-  const container = document.getElementById('contacts-list');
-  const statusFilter = document.getElementById('contact-status-filter').value;
-
-  let filtered = contacts;
-  if (statusFilter !== 'all') {
-    filtered = filtered.filter(c => c.status === statusFilter);
   }
 
-  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Aucun message</td></tr>';
-    return;
+  function archiveRequest(id) {
+    const req = requests.find(r => r.id === id);
+    if (req) {
+      req.status = 'archived';
+      saveRequests();
+      renderRequests();
+    }
   }
 
-  container.innerHTML = filtered.map(msg => `
+  // CONTACTS MANAGEMENT
+  function loadContacts() {
+    const saved = localStorage.getItem('mascarinContacts');
+    if (saved) {
+      contacts = JSON.parse(saved);
+    }
+  }
+
+  function saveContacts() {
+    localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
+  }
+
+  function renderContacts() {
+    const container = document.getElementById('contacts-list');
+    const statusFilter = document.getElementById('contact-status-filter').value;
+
+    let filtered = contacts;
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(c => c.status === statusFilter);
+    }
+
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Aucun message</td></tr>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(msg => `
     <tr style="border-bottom: 1px solid var(--border); background: ${msg.status === 'unread' ? '#f0f9ff' : 'transparent'}">
       <td style="padding: 16px;">${new Date(msg.date).toLocaleDateString()}</td>
       <td style="padding: 16px;">${msg.name}</td>
@@ -1310,110 +1200,110 @@ function renderContacts() {
       </td>
     </tr>
   `).join('');
-}
-
-function viewContact(id) {
-  const msg = contacts.find(c => c.id === id);
-  if (!msg) return;
-
-  alert(`De: ${msg.name}\nEmail: ${msg.email}\nSujet: ${msg.subject}\n\nMessage:\n${msg.message}`);
-
-  if (msg.status === 'unread') {
-    msg.status = 'read';
-    saveContacts();
-    renderContacts();
-    updateDashboard();
   }
-}
 
-function deleteContact(id) {
-  showConfirmationModal(id, 'contact');
-}
+  function viewContact(id) {
+    const msg = contacts.find(c => c.id === id);
+    if (!msg) return;
 
-function performContactDeletion(id) {
-  contacts = contacts.filter(c => c.id !== id);
-  saveContacts();
-  renderContacts();
-}
+    alert(`De: ${msg.name}\nEmail: ${msg.email}\nSujet: ${msg.subject}\n\nMessage:\n${msg.message}`);
 
-// REALTIME LISTENERS
-function setupRealtimeListeners() {
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'mascarinAppointments') {
-      loadAppointments();
-      updateDashboard();
-    } else if (e.key === 'mascarinRequests') {
-      loadRequests();
-      renderRequests();
-      updateDashboard();
-    } else if (e.key === 'mascarinContacts') {
-      loadContacts();
+    if (msg.status === 'unread') {
+      msg.status = 'read';
+      saveContacts();
       renderContacts();
       updateDashboard();
     }
-  });
-}
-
-function updateBadges() {
-  // Requests Badge
-  const pendingRequests = requests.filter(r => r.status === 'pending').length;
-  const requestsBadge = document.getElementById('requests-badge');
-  if (requestsBadge) {
-    requestsBadge.textContent = pendingRequests;
-    requestsBadge.style.display = pendingRequests > 0 ? 'inline-block' : 'none';
   }
 
-  // Contacts Badge
-  const unreadContacts = contacts.filter(c => c.status === 'unread').length;
-  const contactsBadge = document.getElementById('contacts-badge');
-  if (contactsBadge) {
-    contactsBadge.textContent = unreadContacts;
-    contactsBadge.style.display = unreadContacts > 0 ? 'inline-block' : 'none';
+  function deleteContact(id) {
+    showConfirmationModal(id, 'contact');
   }
-}
 
-// Window Assignments
-window.editAppointment = editAppointment;
-window.deleteAppointment = deleteAppointment;
-window.exportAppointments = exportAppointments;
-window.importAppointments = importAppointments;
-window.clearAllData = clearAllData;
-window.showDayAppointments = showDayAppointments;
-window.closeDayModal = closeDayModal;
-window.addAppointmentForDay = addAppointmentForDay;
-window.deleteAppointmentFromDay = deleteAppointmentFromDay;
-window.closeConfirmationModal = closeConfirmationModal;
-window.showNewAppointmentModal = showNewAppointmentModal;
-window.switchView = switchView;
-window.handleLogin = handleLogin;
-window.debugBadges = () => { console.log('Requests:', requests); console.log('Contacts:', contacts); };
-window.showNewClientModal = showNewClientModal;
-window.closeClientModal = closeClientModal;
-window.editClient = editClient;
-window.showNewInvoiceModal = showNewInvoiceModal;
-window.closeInvoiceModal = closeInvoiceModal;
-window.addInvoiceItem = addInvoiceItem;
-window.calculateInvoiceTotals = calculateInvoiceTotals;
-window.handleInvoiceClientChange = handleInvoiceClientChange;
-window.updateInvoiceNumberPrefix = updateInvoiceNumberPrefix;
-window.editInvoice = editInvoice;
-window.deleteInvoice = deleteInvoice;
-window.printInvoice = printInvoice;
-window.loadRequests = () => { loadRequests(); renderRequests(); };
-window.filterRequests = renderRequests;
-window.convertRequestToAppointment = convertRequestToAppointment;
-window.archiveRequest = archiveRequest;
-window.loadContacts = () => { loadContacts(); renderContacts(); };
-window.filterContacts = renderContacts;
-window.viewContact = viewContact;
-window.deleteContact = deleteContact;
-window.resetApp = resetApp;
-window.handleRestoreFile = (input) => {
-  // Placeholder for backup-restore.js functionality
-  if (window.handleRestoreFileImpl) window.handleRestoreFileImpl(input);
-};
-window.performRestore = () => {
-  if (window.performRestoreImpl) window.performRestoreImpl();
-};
+  function performContactDeletion(id) {
+    contacts = contacts.filter(c => c.id !== id);
+    saveContacts();
+    renderContacts();
+  }
 
-console.log('Admin Dashboard Script Loaded (Full Rewrite v37)');
+  // REALTIME LISTENERS
+  function setupRealtimeListeners() {
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'mascarinAppointments') {
+        loadAppointments();
+        updateDashboard();
+      } else if (e.key === 'mascarinRequests') {
+        loadRequests();
+        renderRequests();
+        updateDashboard();
+      } else if (e.key === 'mascarinContacts') {
+        loadContacts();
+        renderContacts();
+        updateDashboard();
+      }
+    });
+  }
+
+  function updateBadges() {
+    // Requests Badge
+    const pendingRequests = requests.filter(r => r.status === 'pending').length;
+    const requestsBadge = document.getElementById('requests-badge');
+    if (requestsBadge) {
+      requestsBadge.textContent = pendingRequests;
+      requestsBadge.style.display = pendingRequests > 0 ? 'inline-block' : 'none';
+    }
+
+    // Contacts Badge
+    const unreadContacts = contacts.filter(c => c.status === 'unread').length;
+    const contactsBadge = document.getElementById('contacts-badge');
+    if (contactsBadge) {
+      contactsBadge.textContent = unreadContacts;
+      contactsBadge.style.display = unreadContacts > 0 ? 'inline-block' : 'none';
+    }
+  }
+
+  // Window Assignments
+  window.editAppointment = editAppointment;
+  window.deleteAppointment = deleteAppointment;
+  window.exportAppointments = exportAppointments;
+  window.importAppointments = importAppointments;
+  window.clearAllData = clearAllData;
+  window.showDayAppointments = showDayAppointments;
+  window.closeDayModal = closeDayModal;
+  window.addAppointmentForDay = addAppointmentForDay;
+  window.deleteAppointmentFromDay = deleteAppointmentFromDay;
+  window.closeConfirmationModal = closeConfirmationModal;
+  window.showNewAppointmentModal = showNewAppointmentModal;
+  window.switchView = switchView;
+  window.handleLogin = handleLogin;
+  window.debugBadges = () => { console.log('Requests:', requests); console.log('Contacts:', contacts); };
+  window.showNewClientModal = showNewClientModal;
+  window.closeClientModal = closeClientModal;
+  window.editClient = editClient;
+  window.showNewInvoiceModal = showNewInvoiceModal;
+  window.closeInvoiceModal = closeInvoiceModal;
+  window.addInvoiceItem = addInvoiceItem;
+  window.calculateInvoiceTotals = calculateInvoiceTotals;
+  window.handleInvoiceClientChange = handleInvoiceClientChange;
+  window.updateInvoiceNumberPrefix = updateInvoiceNumberPrefix;
+  window.editInvoice = editInvoice;
+  window.deleteInvoice = deleteInvoice;
+  window.printInvoice = printInvoice;
+  window.loadRequests = () => { loadRequests(); renderRequests(); };
+  window.filterRequests = renderRequests;
+  window.convertRequestToAppointment = convertRequestToAppointment;
+  window.archiveRequest = archiveRequest;
+  window.loadContacts = () => { loadContacts(); renderContacts(); };
+  window.filterContacts = renderContacts;
+  window.viewContact = viewContact;
+  window.deleteContact = deleteContact;
+  window.resetApp = resetApp;
+  window.handleRestoreFile = (input) => {
+    // Placeholder for backup-restore.js functionality
+    if (window.handleRestoreFileImpl) window.handleRestoreFileImpl(input);
+  };
+  window.performRestore = () => {
+    if (window.performRestoreImpl) window.performRestoreImpl();
+  };
+
+  console.log('Admin Dashboard Script Loaded (Full Rewrite v37)');
