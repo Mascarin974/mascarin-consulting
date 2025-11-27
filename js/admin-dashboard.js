@@ -17,6 +17,20 @@ let editingClientId = null;
 let currentSelectedDate = null;
 let badgeInterval = null;
 
+// Global Error Handler
+window.onerror = function (msg, url, line, col, error) {
+  console.error('Global Error:', { msg, url, line, col, error });
+  alert('Erreur JS: ' + msg);
+};
+
+// Global Click Logger for Debugging
+document.addEventListener('click', (e) => {
+  console.log('Clicked element:', e.target);
+  if (e.target.tagName === 'BUTTON') {
+    console.log('Button clicked:', e.target.innerText, e.target.onclick);
+  }
+});
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
   checkAuthentication();
