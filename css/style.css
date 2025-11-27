@@ -604,3 +604,12 @@ ul {
   color: var(--text-light);
   margin-bottom: 24px;
 }
+
+.img-placeholder {
+  width: 100%;
+  height: 100%;
+  background-image: url('../public/christian-abonnel.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+}
