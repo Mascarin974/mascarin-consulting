@@ -137,7 +137,7 @@ class InputSanitizer {
         if (typeof name !== 'string') return '';
 
         // Remove anything that's not letter, space, hyphen, or apostrophe
-        const sanitized = name.replace(/[^a-zA-ZÀ-ÿ\s'-]/g, '').trim();
+        const sanitized = name.replace(/[^a-zA-Z\u00C0-\u00FF\s'-]/g, '').trim();
 
         // Capitalize first letter of each word
         return sanitized.replace(/\b\w/g, char => char.toUpperCase());

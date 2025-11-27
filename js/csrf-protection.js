@@ -230,8 +230,11 @@ class CSRFProtection {
                 // Validate CSRF token
                 if (!this.validateForm(form)) {
                     e.preventDefault();
-                    console.error('CSRF validation failed');
-                    alert('Erreur de sécurité. Veuillez recharger la page.');
+                    console.error('❌ CSRF validation failed for form:', form.id || form);
+                    const tokenInput = form.querySelector('input[name="csrf_token"]');
+                    console.error('Token in form:', tokenInput ? tokenInput.value : 'MISSING');
+                    console.error('Token in storage:', this.getToken());
+                    alert('Erreur de sécurité (CSRF). Veuillez recharger la page.');
                     return false;
                 }
 

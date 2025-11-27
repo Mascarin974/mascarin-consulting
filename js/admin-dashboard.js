@@ -866,6 +866,7 @@ function renderInvoicesTable() {
             </td>
             <td style="padding: 16px;">
               <div style="display: flex; gap: 8px;">
+                <button class="btn-sm btn-edit" onclick="printInvoice('${inv.id}')" title="Imprimer">🖨️</button>
                 <button class="btn-sm btn-edit" onclick="editInvoice('${inv.id}')">✏️</button>
                 <button class="btn-sm btn-delete" onclick="deleteInvoice('${inv.id}')">🗑️</button>
               </div>
@@ -1757,3 +1758,152 @@ function deleteContact(id) {
     renderContacts();
   }
 }
+
+// ==========================================
+// PRINTING FUNCTIONALITY
+// ==========================================
+
+function printCurrentInvoice() {
+  // If we are editing an existing invoice, print it by ID
+  if (editingInvoiceId) {
+    printInvoice(editingInvoiceId);
+  } else {
+    // If it's a new invoice (unsaved), we could gather form data, 
+    // but it's safer to ask user to save first.
+    alert("Veuillez d'abord enregistrer le document avant de l'imprimer.");
+  }
+}
+
+function printInvoice(id) {
+  const invoice = invoices.find(i => i.id === id);
+  if (!invoice) return;
+
+  const client = clients.find(c => c.id === invoice.clientId) || {
+    name: invoice.clientName || 'Client inconnu',
+    address: '',
+    email: invoice.clientEmail || ''
+  };
+
+  const printWindow = window.open('', '_blank');
+
+  const html = `
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <title>${invoice.type === 'quote' ? 'Devis' : 'Facture'} - ${invoice.number}</title>
+            <style>
+                body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; line-height: 1.6; padding: 40px; max-width: 800px; margin: 0 auto; }
+                .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+                .company-info h1 { margin: 0; color: #b45309; font-size: 24px; }
+                .company-info p { margin: 5px 0; font-size: 14px; color: #666; }
+                .invoice-info { text-align: right; }
+                .invoice-info h2 { margin: 0; font-size: 28px; color: #333; }
+                .invoice-info p { margin: 5px 0; }
+                .client-section { margin-bottom: 40px; }
+                .client-section h3 { margin-bottom: 10px; font-size: 16px; color: #666; text-transform: uppercase; }
+                .client-box { background: #f9fafb; padding: 20px; border-radius: 8px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                th { text-align: left; padding: 12px; background: #f3f4f6; border-bottom: 2px solid #e5e7eb; font-weight: 600; }
+                td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+                .totals { margin-left: auto; width: 300px; }
+                .total-row { display: flex; justify-content: space-between; padding: 8px 0; }
+                .total-row.final { font-weight: bold; font-size: 1.2em; border-top: 2px solid #333; margin-top: 10px; padding-top: 10px; }
+                .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; font-size: 12px; color: #999; }
+                .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; text-transform: uppercase; border: 1px solid #ccc; }
+                @media print {
+                    body { padding: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="company-info">
+                    <h1>Mascarin Consulting</h1>
+                    <p>Christian ABONNEL</p>
+                    <p>La Réunion / Océan Indien / International</p>
+                    <p>Email: mascarinconsulting@outlook.fr</p>
+                    <p>Tél: 0692 74 30 40</p>
+                    <p>SIRET: 953 401 874 00011</p>
+                </div>
+                <div class="invoice-info">
+                    <h2>${invoice.type === 'quote' ? 'DEVIS' : 'FACTURE'}</h2>
+                    <p><strong>N° :</strong> ${invoice.number}</p>
+                    <p><strong>Date :</strong> ${new Date(invoice.date).toLocaleDateString('fr-FR')}</p>
+                    <p><strong>Échéance :</strong> ${new Date(invoice.dueDate).toLocaleDateString('fr-FR')}</p>
+                </div>
+            </div>
+
+            <div class="client-section">
+                <h3>Destinataire</h3>
+                <div class="client-box">
+                    <strong>${client.name}</strong><br>
+                    ${client.address ? client.address.replace(/\n/g, '<br>') : ''}<br>
+                    ${client.email ? client.email : ''}<br>
+                    ${client.phone ? client.phone : ''}
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th style="text-align: center;">Qté</th>
+                        <th style="text-align: right;">Prix Unit.</th>
+                        <th style="text-align: right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${invoice.items.map(item => `
+                    <tr>
+                        <td>${item.description}</td>
+                        <td style="text-align: center;">${item.qty}</td>
+                        <td style="text-align: right;">${parseFloat(item.price).toFixed(2)} €</td>
+                        <td style="text-align: right;">${(item.qty * item.price).toFixed(2)} €</td>
+                    </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div class="totals">
+                <div class="total-row">
+                    <span>Sous-total HT :</span>
+                    <span>${(invoice.total / 1.085).toFixed(2)} €</span>
+                </div>
+                <div class="total-row">
+                    <span>TVA (8.5%) :</span>
+                    <span>${(invoice.total - (invoice.total / 1.085)).toFixed(2)} €</span>
+                </div>
+                <div class="total-row final">
+                    <span>Total TTC :</span>
+                    <span>${parseFloat(invoice.total).toFixed(2)} €</span>
+                </div>
+            </div>
+
+            ${invoice.notes ? `
+            <div style="margin-top: 40px; padding: 20px; background: #fffbeb; border-radius: 4px;">
+                <strong>Notes / Conditions :</strong><br>
+                ${invoice.notes.replace(/\n/g, '<br>')}
+            </div>
+            ` : ''}
+
+            <div class="footer">
+                <p>Mascarin Consulting - SIRET 953 401 874 00011 - RCS Saint-Pierre de la Réunion</p>
+                <p>Dispensé d'immatriculation au registre du commerce et des sociétés (RCS) et au répertoire des métiers (RM)</p>
+            </div>
+
+            <script>
+                window.onload = function() { window.print(); }
+            </script>
+        </body>
+        </html>
+    `;
+
+  printWindow.document.write(html);
+  printWindow.document.close();
+}
+
+// Expose to window
+window.printCurrentInvoice = printCurrentInvoice;
+window.printInvoice = printInvoice;

@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com;">
     <title>Admin Dashboard - Mascarin Consulting</title>
     <link rel="stylesheet" href="./css/admin-dashboard.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,25 +18,24 @@
 <body>
     <!-- Login Screen -->
     <div id="login-screen" class="login-screen">
-        <div class="login-card">
-            <div class="login-header">
-                <h1>🔐 Admin Dashboard</h1>
-                <p>Mascarin Consulting</p>
-            </div>
-            <form id="login-form" onsubmit="handleLogin(event); return false;">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="login-email" required placeholder="votre@email.com" autocomplete="username">
-                </div>
-                <div class="form-group">
-                    <label>Mot de passe</label>
-                    <input type="password" id="login-password" required placeholder="••••••••"
-                        autocomplete="current-password">
-                </div>
-                <div id="login-error" class="error-message"></div>
-                <button type="submit" class="btn-login">Se connecter</button>
-            </form>
+        <div class="login-header">
+            <h1>🔐 Admin Dashboard</h1>
+            <p>Mascarin Consulting</p>
         </div>
+        <form id="login-form" onsubmit="handleLogin(event); return false;">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="login-email" required placeholder="votre@email.com" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" id="login-password" required placeholder="••••••••"
+                    autocomplete="current-password">
+            </div>
+            <div id="login-error" class="error-message"></div>
+            <button type="submit" class="btn-login">Se connecter</button>
+        </form>
+    </div>
     </div>
 
     <!-- Main Dashboard -->
@@ -608,107 +609,95 @@
 
                 <!-- Notes Section -->
                 <div class="form-group">
-                    <label>Notes / Conditions</label>
-                    <textarea id="invoice-notes" rows="3"
-                        placeholder="Conditions de paiement, mentions légales..."></textarea>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeInvoiceModal()">Annuler</button>
-                    <button type="submit" class="btn-primary">Enregistrer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Client Modal -->
-    <div id="client-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="client-modal-title">Nouveau Client</h3>
-                <button class="modal-close" onclick="closeClientModal()">&times;</button>
-            </div>
-            <form id="client-form">
-                <input type="hidden" id="client-id">
-                <div class="form-group">
-                    <label>Nom du client *</label>
-                    <input type="text" id="client-form-name" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="client-form-email">
+                    <div id="client-modal" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 id="client-modal-title">Nouveau Client</h3>
+                                <button class="modal-close" onclick="closeClientModal()">&times;</button>
+                            </div>
+                            <form id="client-form">
+                                <input type="hidden" id="client-id">
+                                <div class="form-group">
+                                    <label>Nom du client *</label>
+                                    <input type="text" id="client-form-name" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="client-form-email">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Téléphone</label>
+                                        <input type="tel" id="client-form-phone">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Adresse</label>
+                                    <textarea id="client-form-address" rows="2"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Notes</label>
+                                    <textarea id="client-form-notes" rows="3"></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-secondary"
+                                        onclick="closeClientModal()">Annuler</button>
+                                    <button type="submit" class="btn-primary">Enregistrer</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Téléphone</label>
-                        <input type="tel" id="client-form-phone">
+
+                    <!-- Restore Confirmation Modal -->
+                    <div id="restore-modal" class="modal">
+                        <div class="modal-content" style="max-width: 500px;">
+                            <div class="modal-header">
+                                <h3>Confirmation de restauration</h3>
+                                <button class="modal-close" onclick="closeRestoreModal()">&times;</button>
+                            </div>
+                            <div style="padding: 24px;">
+                                <p>⚠️ <strong>ATTENTION :</strong> Cette action va remplacer TOUTES les données
+                                    actuelles par celles
+                                    de
+                                    la sauvegarde.</p>
+                                <p>Les données suivantes seront restaurées :</p>
+                                <ul style="margin: 10px 0 20px 20px;">
+                                    <li>Rendez-vous</li>
+                                    <li>Clients</li>
+                                    <li>Factures</li>
+                                    <li>Demandes de rendez-vous</li>
+                                    <li>Messages de contact</li>
+                                </ul>
+                                <p>Cette action est irréversible. Êtes-vous sûr de vouloir continuer ?</p>
+                                <div class="modal-footer">
+                                    <button class="btn-secondary" onclick="closeRestoreModal()">Annuler</button>
+                                    <button class="btn-primary" style="background-color: #ef4444;"
+                                        onclick="confirmRestore()">Restaurer
+                                        maintenant</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>Adresse</label>
-                    <textarea id="client-form-address" rows="2"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Notes</label>
-                    <textarea id="client-form-notes" rows="3"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeClientModal()">Annuler</button>
-                    <button type="submit" class="btn-primary">Enregistrer</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <!-- Restore Confirmation Modal -->
-    <div id="restore-modal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3>Confirmation de restauration</h3>
-                <button class="modal-close" onclick="closeRestoreModal()">&times;</button>
-            </div>
-            <div style="padding: 24px;">
-                <p>⚠️ <strong>ATTENTION :</strong> Cette action va remplacer TOUTES les données
-                    actuelles par celles
-                    de
-                    la sauvegarde.</p>
-                <p>Les données suivantes seront restaurées :</p>
-                <ul style="margin: 10px 0 20px 20px;">
-                    <li>Rendez-vous</li>
-                    <li>Clients</li>
-                    <li>Factures</li>
-                    <li>Demandes de rendez-vous</li>
-                    <li>Messages de contact</li>
-                </ul>
-                <p>Cette action est irréversible. Êtes-vous sûr de vouloir continuer ?</p>
-                <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeRestoreModal()">Annuler</button>
-                    <button class="btn-primary" style="background-color: #ef4444;" onclick="confirmRestore()">Restaurer
-                        maintenant</button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <div id="notification-toast" class="notification-toast"></div>
 
-    <div id="notification-toast" class="notification-toast"></div>
+                    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999;">
+                        <button onclick="resetApp()"
+                            style="background: rgba(255, 255, 255, 0.9); border: 1px solid #ccc; padding: 10px 15px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px; color: #333;">
+                            ⚠️ Problème d'affichage ? Réinitialiser
+                        </button>
+                    </div>
 
-    <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999;">
-        <button onclick="resetApp()"
-            style="background: rgba(255, 255, 255, 0.9); border: 1px solid #ccc; padding: 10px 15px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px; color: #333;">
-            ⚠️ Problème d'affichage ? Réinitialiser
-        </button>
-    </div>
+                    <!-- Security Modules (load in order) -->
+                    <script src="./js/sanitizer.js"></script>
+                    <script src="./js/security.js"></script>
+                    <script src="./js/csrf-protection.js"></script>
+                    <script src="./js/monitoring.js"></script>
+                    <script src="./js/security-init.js"></script>
 
-    <!-- Security Modules (load in order) -->
-    <script src="./js/sanitizer.js"></script>
-    <script src="./js/security.js"></script>
-    <script src="./js/csrf-protection.js"></script>
-    <script src="./js/monitoring.js"></script>
-    <script src="./js/security-init.js"></script>
-
-    <!-- Application Scripts -->
-    <script src="./js/backup-restore.js?v=14"></script>
-    <script src="./js/admin-dashboard.js?v=36"></script>
+                    <!-- Application Scripts -->
+                    <script src="./js/backup-restore.js?v=14"></script>
+                    <script src="./js/admin-dashboard.js?v=36"></script>
 </body>
 
 </html>
