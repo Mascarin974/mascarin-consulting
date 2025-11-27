@@ -213,4 +213,13 @@ document.addEventListener('DOMContentLoaded', () => {
       rdvForm.reset();
     });
   }
+  // ================================================
+  // ADMIN SHORTCUT
+  // ================================================
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+      e.preventDefault();
+      window.location.href = './admin-dashboard.html';
+    }
+  });
 });
