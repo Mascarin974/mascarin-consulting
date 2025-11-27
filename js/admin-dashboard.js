@@ -220,11 +220,20 @@ function handleAppointmentSubmit(e) {
 }
 
 function showNewAppointmentModal() {
+  console.log('🚀 showNewAppointmentModal called');
   editingAppointmentId = null;
-  document.getElementById('modal-title').textContent = 'Nouveau Rendez-vous';
-  document.getElementById('appointment-form').reset();
+
+  const title = document.getElementById('modal-title');
+  const form = document.getElementById('appointment-form');
+  const modal = document.getElementById('appointment-modal');
+
+  console.log('Elements found:', { title: !!title, form: !!form, modal: !!modal });
+
+  if (title) title.textContent = 'Nouveau Rendez-vous';
+  if (form) form.reset();
 
   if (typeof updateClientSelect === 'function') {
+    console.log('Calling updateClientSelect...');
     updateClientSelect();
   }
 
@@ -236,7 +245,14 @@ function showNewAppointmentModal() {
   if (document.getElementById('appointment-date')) document.getElementById('appointment-date').value = dateStr;
   if (document.getElementById('appointment-time')) document.getElementById('appointment-time').value = timeStr;
 
-  document.getElementById('appointment-modal').classList.add('active');
+  if (modal) {
+    console.log('Adding active class to modal');
+    modal.classList.add('active');
+    console.log('Modal classList:', modal.classList.toString());
+    console.log('Modal style display:', window.getComputedStyle(modal).display);
+  } else {
+    console.error('❌ Modal element not found!');
+  }
 }
 
 function editAppointment(id) {
