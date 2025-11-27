@@ -1408,6 +1408,153 @@ function printInvoice(id) {
   printWindow.print();
 }
 
+// REQUESTS MANAGEMENT
+function fetchRequests() {
+  const saved = localStorage.getItem('mascarinRequests');
+  if (saved) {
+    requests = JSON.parse(saved);
+  }
+}
+
+function saveRequests() {
+  localStorage.setItem('mascarinRequests', JSON.stringify(requests));
+}
+
+function renderRequests() {
+  const container = document.getElementById('requests-list');
+  const statusFilter = document.getElementById('request-status-filter').value;
+
+  let filtered = requests;
+
+  if (statusFilter !== 'all') {
+    filtered = filtered.filter(r => r.status === statusFilter);
+  }
+
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Aucune demande trouvée</td></tr>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(req => `
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 16px;">${new Date(req.date).toLocaleDateString()}</td>
+      <td style="padding: 16px;">${req.name}</td>
+      <td style="padding: 16px;">
+        ${req.email}<br>
+        ${req.phone}
+      </td>
+      <td style="padding: 16px;">${req.service}</td>
+      <td style="padding: 16px;">
+        <span class="status-badge status-${req.status === 'processed' ? 'completed' : 'pending'}">
+          ${req.status === 'processed' ? 'Traitée' : 'En attente'}
+        </span>
+      </td>
+      <td style="padding: 16px;">
+        <button class="btn-sm btn-primary" onclick="convertRequestToAppointment('${req.id}')">📅 Planifier</button>
+        <button class="btn-sm btn-secondary" onclick="archiveRequest('${req.id}')">📁</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function convertRequestToAppointment(id) {
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+
+  showNewAppointmentModal();
+
+  // Pre-fill form
+  document.getElementById('client-name').value = req.name;
+  document.getElementById('client-email').value = req.email;
+  document.getElementById('client-phone').value = req.phone;
+  document.getElementById('appointment-type').value = req.service;
+  document.getElementById('appointment-notes').value = `Demande web du ${new Date(req.date).toLocaleDateString()}`;
+
+  // Mark as processed
+  req.status = 'processed';
+  saveRequests();
+}
+
+function archiveRequest(id) {
+  const req = requests.find(r => r.id === id);
+  if (req) {
+    req.status = 'archived';
+    saveRequests();
+    renderRequests();
+  }
+}
+
+// CONTACTS MANAGEMENT
+function fetchContacts() {
+  const saved = localStorage.getItem('mascarinContacts');
+  if (saved) {
+    contacts = JSON.parse(saved);
+  }
+}
+
+function saveContacts() {
+  localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
+}
+
+function renderContacts() {
+  const container = document.getElementById('contacts-list');
+  const statusFilter = document.getElementById('contact-status-filter').value;
+
+  let filtered = contacts;
+
+  if (statusFilter !== 'all') {
+    filtered = filtered.filter(c => c.status === statusFilter);
+  }
+
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Aucun message</td></tr>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(contact => `
+    <tr style="border-bottom: 1px solid var(--border); background-color: ${contact.status === 'unread' ? '#f0f9ff' : 'transparent'}">
+      <td style="padding: 16px;">${new Date(contact.date).toLocaleDateString()}</td>
+      <td style="padding: 16px;">${contact.name}</td>
+      <td style="padding: 16px;">${contact.email}</td>
+      <td style="padding: 16px;">
+        <span class="status-badge status-${contact.status === 'unread' ? 'pending' : 'completed'}">
+          ${contact.status === 'unread' ? 'Non lu' : 'Lu'}
+        </span>
+      </td>
+      <td style="padding: 16px;">
+        <button class="btn-sm btn-secondary" onclick="viewContact('${contact.id}')">👁️ Voir</button>
+        <button class="btn-sm btn-delete" onclick="deleteContact('${contact.id}')">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function viewContact(id) {
+  const contact = contacts.find(c => c.id === id);
+  if (contact) {
+    alert(`Message de ${contact.name}:\n\n${contact.message}`);
+    if (contact.status === 'unread') {
+      contact.status = 'read';
+      saveContacts();
+      renderContacts();
+      updateBadges();
+    }
+  }
+}
+
+function deleteContact(id) {
+  if (confirm('Supprimer ce message ?')) {
+    contacts = contacts.filter(c => c.id !== id);
+    saveContacts();
+    renderContacts();
+    updateBadges();
+  }
+}
+
 // INVOICES MANAGEMENT
 function loadInvoices() {
   const saved = localStorage.getItem('mascarinInvoices');
@@ -1873,11 +2020,11 @@ window.updateInvoiceNumberPrefix = updateInvoiceNumberPrefix;
 window.editInvoice = editInvoice;
 window.deleteInvoice = deleteInvoice;
 window.printInvoice = printInvoice;
-window.loadRequests = () => { loadRequests(); renderRequests(); };
+window.loadRequests = () => { fetchRequests(); renderRequests(); };
 window.filterRequests = renderRequests;
 window.convertRequestToAppointment = convertRequestToAppointment;
 window.archiveRequest = archiveRequest;
-window.loadContacts = () => { loadContacts(); renderContacts(); };
+window.loadContacts = () => { fetchContacts(); renderContacts(); };
 window.filterContacts = renderContacts;
 window.viewContact = viewContact;
 window.deleteContact = deleteContact;
