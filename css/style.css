@@ -94,22 +94,6 @@ ul {
   color: var(--bg-white);
   padding: 12px 32px;
   border-radius: 2px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  border: 1px solid var(--bg-white);
-  cursor: pointer;
-}
-
-}
-
-.section-subtitle {
-  color: var(--text-light);
-  font-size: 1.1rem;
-}
-
-/* Services */
-.services {
-  background-color: var(--bg-white);
 }
 
 .services-grid {
