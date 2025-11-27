@@ -11,6 +11,14 @@ let requests = [];
 let contacts = [];
 let currentView = 'overview';
 let currentDate = new Date();
+// Global Click Logger for Debugging
+document.addEventListener('click', (e) => {
+  console.log('🖱️ Clicked:', e.target);
+  if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+    console.log('🔘 Button clicked:', e.target.innerText || e.target.closest('button').innerText);
+  }
+});
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
   checkAuthentication();
