@@ -83,25 +83,6 @@ ul {
   cursor: pointer;
 }
 
-.btn-primary:hover {
-  background-color: transparent;
-  color: var(--secondary);
-}
-
-.btn-secondary {
-  display: inline-block;
-  background-color: transparent;
-  color: var(--bg-white);
-  padding: 12px 32px;
-  border-radius: 2px;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 40px;
-}
-
 .service-card {
   padding: 40px;
   background-color: var(--bg-light);
