@@ -792,6 +792,120 @@ function performDayDeletion(id) {
   }
 }
 
+// APPOINTMENT MODAL & ACTIONS
+function showNewAppointmentModal() {
+  editingAppointmentId = null;
+  document.getElementById('modal-title').textContent = 'Nouveau Rendez-vous';
+  document.getElementById('appointment-form').reset();
+
+  // Set default date/time
+  document.getElementById('appointment-date').valueAsDate = new Date();
+  document.getElementById('appointment-time').value = '09:00';
+
+  updateClientSelect();
+  document.getElementById('appointment-modal').classList.add('active');
+}
+
+function closeAppointmentModal() {
+  document.getElementById('appointment-modal').classList.remove('active');
+}
+
+function handleAppointmentSubmit(e) {
+  e.preventDefault();
+
+  const clientSelect = document.getElementById('client-select');
+  let clientId = clientSelect.value;
+  let clientName = '';
+  let clientEmail = '';
+  let clientPhone = '';
+
+  // Handle new client creation on the fly
+  if (!clientId) {
+    clientName = document.getElementById('client-name').value;
+    clientEmail = document.getElementById('client-email').value;
+    clientPhone = document.getElementById('client-phone').value;
+
+    if (clientName) {
+      const newClient = {
+        id: Date.now().toString(),
+        name: clientName,
+        email: clientEmail,
+        phone: clientPhone,
+        createdAt: new Date().toISOString()
+      };
+      clients.push(newClient);
+      saveClients();
+      clientId = newClient.id;
+    }
+  } else {
+    const client = clients.find(c => c.id === clientId);
+    if (client) {
+      clientName = client.name;
+      clientEmail = client.email;
+      clientPhone = client.phone;
+    }
+  }
+
+  const formData = {
+    clientId: clientId,
+    clientName: clientName,
+    clientEmail: clientEmail,
+    clientPhone: clientPhone,
+    location: document.getElementById('appointment-location').value,
+    serviceType: document.getElementById('appointment-type').value,
+    duration: parseInt(document.getElementById('appointment-duration').value),
+    date: document.getElementById('appointment-date').value,
+    time: document.getElementById('appointment-time').value,
+    status: document.getElementById('appointment-status').value,
+    notes: document.getElementById('appointment-notes').value
+  };
+
+  if (editingAppointmentId) {
+    const index = appointments.findIndex(a => a.id === editingAppointmentId);
+    if (index !== -1) {
+      appointments[index] = { ...appointments[index], ...formData };
+    }
+  } else {
+    appointments.push({
+      id: Date.now().toString(),
+      ...formData
+    });
+  }
+
+  saveAppointments();
+  updateDashboard();
+  closeAppointmentModal();
+
+  if (currentView === 'calendar') {
+    renderCalendar();
+  }
+}
+
+function editAppointment(id) {
+  const apt = appointments.find(a => a.id === id);
+  if (!apt) return;
+
+  editingAppointmentId = id;
+  document.getElementById('modal-title').textContent = 'Modifier Rendez-vous';
+
+  updateClientSelect();
+  document.getElementById('client-select').value = apt.clientId || '';
+
+  // Fill other fields
+  document.getElementById('client-name').value = apt.clientName || '';
+  document.getElementById('client-email').value = apt.clientEmail || '';
+  document.getElementById('client-phone').value = apt.clientPhone || '';
+  document.getElementById('appointment-location').value = apt.location || '';
+  document.getElementById('appointment-type').value = apt.serviceType;
+  document.getElementById('appointment-duration').value = apt.duration;
+  document.getElementById('appointment-date').value = apt.date;
+  document.getElementById('appointment-time').value = apt.time;
+  document.getElementById('appointment-status').value = apt.status;
+  document.getElementById('appointment-notes').value = apt.notes || '';
+
+  document.getElementById('appointment-modal').classList.add('active');
+}
+
 // CLIENTS MANAGEMENT
 function loadClients() {
   try {
@@ -971,6 +1085,327 @@ function updateClientSelect() {
 
     if (currentValue) select.value = currentValue;
   });
+}
+
+// INVOICES MANAGEMENT
+function loadInvoices() {
+  const saved = localStorage.getItem('mascarinInvoices');
+  if (saved) {
+    invoices = JSON.parse(saved);
+  }
+}
+
+function saveInvoices() {
+  localStorage.setItem('mascarinInvoices', JSON.stringify(invoices));
+}
+
+function renderInvoicesTable() {
+  const container = document.getElementById('invoices-list');
+  const typeFilter = document.getElementById('invoice-type-filter').value;
+  const searchTerm = document.getElementById('search-invoices').value.toLowerCase();
+
+  let filtered = invoices;
+
+  if (typeFilter !== 'all') {
+    filtered = filtered.filter(i => i.type === typeFilter);
+  }
+
+  if (searchTerm) {
+    filtered = filtered.filter(i =>
+      i.number.toLowerCase().includes(searchTerm) ||
+      i.clientName.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="padding: 32px; text-align: center; color: var(--text-light);">Aucun document trouvé</p>';
+    return;
+  }
+
+  container.innerHTML = `
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+          <th style="padding: 16px;">Numéro</th>
+          <th style="padding: 16px;">Date</th>
+          <th style="padding: 16px;">Client</th>
+          <th style="padding: 16px;">Montant TTC</th>
+          <th style="padding: 16px;">Statut</th>
+          <th style="padding: 16px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map(inv => `
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 16px;"><strong>${inv.number}</strong></td>
+            <td style="padding: 16px;">${formatDate(inv.date)}</td>
+            <td style="padding: 16px;">${inv.clientName}</td>
+            <td style="padding: 16px;">${inv.total.toFixed(2)} €</td>
+            <td style="padding: 16px;">
+              <span class="status-badge status-${inv.status === 'paid' ? 'completed' : (inv.status === 'sent' ? 'confirmed' : 'pending')}">
+                ${inv.status === 'paid' ? 'Payé' : (inv.status === 'sent' ? 'Envoyé' : 'Brouillon')}
+              </span>
+            </td>
+            <td style="padding: 16px;">
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-sm btn-edit" onclick="editInvoice('${inv.id}')">✏️</button>
+                <button class="btn-sm btn-delete" onclick="deleteInvoice('${inv.id}')">🗑️</button>
+                <button class="btn-sm btn-secondary" onclick="printInvoice('${inv.id}')">🖨️</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function showNewInvoiceModal() {
+  editingInvoiceId = null;
+  document.getElementById('invoice-modal-title').textContent = 'Nouveau Document';
+  document.getElementById('invoice-form').reset();
+  document.getElementById('invoice-items-list').innerHTML = '';
+  addInvoiceItem(); // Add one empty row
+
+  // Set defaults
+  document.getElementById('invoice-date').valueAsDate = new Date();
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 30);
+  document.getElementById('invoice-due-date').valueAsDate = dueDate;
+
+  updateInvoiceNumberPrefix();
+  updateClientSelect();
+
+  document.getElementById('invoice-modal').classList.add('active');
+}
+
+function closeInvoiceModal() {
+  document.getElementById('invoice-modal').classList.remove('active');
+}
+
+function updateInvoiceNumberPrefix() {
+  const type = document.getElementById('invoice-type').value;
+  const prefix = type === 'invoice' ? 'FAC-' : 'DEV-';
+  const year = new Date().getFullYear();
+  const count = invoices.filter(i => i.type === type).length + 1;
+  document.getElementById('invoice-number').value = `${prefix}${year}-${String(count).padStart(4, '0')}`;
+}
+
+function handleInvoiceClientChange() {
+  const select = document.getElementById('invoice-client-select');
+  const emailInput = document.getElementById('invoice-client-email');
+  const nameInput = document.getElementById('invoice-client-name');
+
+  if (select.selectedIndex > 0) {
+    const option = select.options[select.selectedIndex];
+    emailInput.value = option.dataset.email || '';
+    nameInput.value = option.text;
+  } else {
+    emailInput.value = '';
+    nameInput.value = '';
+  }
+}
+
+function addInvoiceItem(item = null) {
+  const tbody = document.getElementById('invoice-items-list');
+  const tr = document.createElement('tr');
+  tr.style.borderBottom = '1px solid var(--border)';
+
+  tr.innerHTML = `
+    <td style="padding: 8px;">
+      <input type="text" class="item-desc" placeholder="Description" value="${item ? item.description : ''}" required style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+    </td>
+    <td style="padding: 8px;">
+      <input type="number" class="item-qty" value="${item ? item.qty : 1}" min="1" onchange="calculateInvoiceTotals()" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+    </td>
+    <td style="padding: 8px;">
+      <input type="number" class="item-price" value="${item ? item.price : 0}" step="0.01" onchange="calculateInvoiceTotals()" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+    </td>
+    <td style="padding: 8px; text-align: right;">
+      <span class="item-total">0.00 €</span>
+    </td>
+    <td style="padding: 8px; text-align: center;">
+      <button type="button" class="btn-sm btn-delete" onclick="this.closest('tr').remove(); calculateInvoiceTotals()">×</button>
+    </td>
+  `;
+
+  tbody.appendChild(tr);
+  calculateInvoiceTotals();
+}
+
+function calculateInvoiceTotals() {
+  let subtotal = 0;
+  const rows = document.querySelectorAll('#invoice-items-list tr');
+
+  rows.forEach(row => {
+    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+    const price = parseFloat(row.querySelector('.item-price').value) || 0;
+    const total = qty * price;
+
+    row.querySelector('.item-total').textContent = total.toFixed(2) + ' €';
+    subtotal += total;
+  });
+
+  const tva = subtotal * 0.085; // 8.5% TVA
+  const total = subtotal + tva;
+
+  document.getElementById('invoice-subtotal').textContent = subtotal.toFixed(2) + ' €';
+  document.getElementById('invoice-tva').textContent = tva.toFixed(2) + ' €';
+  document.getElementById('invoice-total').textContent = total.toFixed(2) + ' €';
+
+  return { subtotal, tva, total };
+}
+
+function handleInvoiceSubmit(e) {
+  e.preventDefault();
+
+  const items = [];
+  document.querySelectorAll('#invoice-items-list tr').forEach(row => {
+    items.push({
+      description: row.querySelector('.item-desc').value,
+      qty: parseFloat(row.querySelector('.item-qty').value),
+      price: parseFloat(row.querySelector('.item-price').value)
+    });
+  });
+
+  const totals = calculateInvoiceTotals();
+
+  const formData = {
+    type: document.getElementById('invoice-type').value,
+    number: document.getElementById('invoice-number').value,
+    status: document.getElementById('invoice-status').value,
+    clientId: document.getElementById('invoice-client-select').value,
+    clientName: document.getElementById('invoice-client-name').value,
+    clientEmail: document.getElementById('invoice-client-email').value,
+    date: document.getElementById('invoice-date').value,
+    dueDate: document.getElementById('invoice-due-date').value,
+    notes: document.getElementById('invoice-notes').value, // This might be missing in HTML, check later
+    items: items,
+    subtotal: totals.subtotal,
+    tva: totals.tva,
+    total: totals.total
+  };
+
+  if (editingInvoiceId) {
+    const index = invoices.findIndex(i => i.id === editingInvoiceId);
+    if (index !== -1) {
+      invoices[index] = { ...invoices[index], ...formData };
+    }
+  } else {
+    invoices.push({
+      id: Date.now().toString(),
+      ...formData
+    });
+  }
+
+  saveInvoices();
+  renderInvoicesTable();
+  closeInvoiceModal();
+}
+
+function editInvoice(id) {
+  const inv = invoices.find(i => i.id === id);
+  if (!inv) return;
+
+  editingInvoiceId = id;
+  document.getElementById('invoice-modal-title').textContent = 'Modifier Document';
+  document.getElementById('invoice-type').value = inv.type;
+  document.getElementById('invoice-number').value = inv.number;
+  document.getElementById('invoice-status').value = inv.status;
+
+  updateClientSelect();
+  document.getElementById('invoice-client-select').value = inv.clientId;
+  document.getElementById('invoice-client-name').value = inv.clientName;
+  document.getElementById('invoice-client-email').value = inv.clientEmail;
+
+  document.getElementById('invoice-date').value = inv.date;
+  document.getElementById('invoice-due-date').value = inv.dueDate;
+  // document.getElementById('invoice-notes').value = inv.notes || ''; // Check if exists
+
+  document.getElementById('invoice-items-list').innerHTML = '';
+  inv.items.forEach(item => addInvoiceItem(item));
+  calculateInvoiceTotals();
+
+  document.getElementById('invoice-modal').classList.add('active');
+}
+
+function deleteInvoice(id) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
+    invoices = invoices.filter(i => i.id !== id);
+    saveInvoices();
+    renderInvoicesTable();
+  }
+}
+
+function printInvoice(id) {
+  const inv = invoices.find(i => i.id === id);
+  if (!inv) return;
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>${inv.number}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; }
+          .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+          .title { font-size: 24px; font-weight: bold; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+          .totals { margin-top: 40px; text-align: right; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <div class="title">${inv.type === 'invoice' ? 'FACTURE' : 'DEVIS'}</div>
+            <div>${inv.number}</div>
+          </div>
+          <div style="text-align: right;">
+            <div><strong>Mascarin Consulting</strong></div>
+            <div>${formatDate(inv.date)}</div>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 40px;">
+          <strong>Client:</strong><br>
+          ${inv.clientName}<br>
+          ${inv.clientEmail}
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Qté</th>
+              <th>Prix Unit.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${inv.items.map(item => `
+              <tr>
+                <td>${item.description}</td>
+                <td>${item.qty}</td>
+                <td>${item.price.toFixed(2)} €</td>
+                <td>${(item.qty * item.price).toFixed(2)} €</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <p>Sous-total: ${inv.subtotal.toFixed(2)} €</p>
+          <p>TVA (8.5%): ${inv.tva.toFixed(2)} €</p>
+          <h3>Total TTC: ${inv.total.toFixed(2)} €</h3>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
 }
 
 // INVOICES MANAGEMENT
