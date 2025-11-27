@@ -2035,9 +2035,204 @@ window.resetApp = resetApp;
 window.handleRestoreFile = (input) => {
   // Placeholder for backup-restore.js functionality
   if (window.handleRestoreFileImpl) window.handleRestoreFileImpl(input);
+  container.innerHTML = filtered.map(req => `
+    <tr style="border-bottom: 1px solid var(--border);">
+      <td style="padding: 16px;">${new Date(req.date).toLocaleDateString()}</td>
+      <td style="padding: 16px;">${req.name}</td>
+      <td style="padding: 16px;">
+        ${req.email}<br>
+        ${req.phone}
+      </td>
+      <td style="padding: 16px;">${req.service}</td>
+      <td style="padding: 16px;">
+        <span class="status-badge status-${req.status === 'processed' ? 'completed' : 'pending'}">
+          ${req.status === 'processed' ? 'Traitée' : 'En attente'}
+        </span>
+      </td>
+      <td style="padding: 16px;">
+        <button class="btn-sm btn-primary" onclick="convertRequestToAppointment('${req.id}')">📅 Planifier</button>
+        <button class="btn-sm btn-secondary" onclick="archiveRequest('${req.id}')">📁</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function convertRequestToAppointment(id) {
+  const req = requests.find(r => r.id === id);
+  if (!req) return;
+
+  showNewAppointmentModal();
+
+  // Pre-fill form
+  document.getElementById('client-name').value = req.name;
+  document.getElementById('client-email').value = req.email;
+  document.getElementById('client-phone').value = req.phone;
+  document.getElementById('appointment-type').value = req.service;
+  document.getElementById('appointment-notes').value = `Demande web du ${new Date(req.date).toLocaleDateString()}`;
+
+  // Mark as processed
+  req.status = 'processed';
+  saveRequests();
+}
+
+function archiveRequest(id) {
+  const req = requests.find(r => r.id === id);
+  if (req) {
+    req.status = 'archived';
+    saveRequests();
+    renderRequests();
+  }
+}
+
+// CONTACTS MANAGEMENT
+function loadContacts() {
+  const saved = localStorage.getItem('mascarinContacts');
+  if (saved) {
+    contacts = JSON.parse(saved);
+  }
+}
+
+function saveContacts() {
+  localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
+}
+
+function renderContacts() {
+  const container = document.getElementById('contacts-list');
+  const statusFilter = document.getElementById('contact-status-filter').value;
+
+  let filtered = contacts;
+  if (statusFilter !== 'all') {
+    filtered = filtered.filter(c => c.status === statusFilter);
+  }
+
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Aucun message</td></tr>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(msg => `
+    <tr style="border-bottom: 1px solid var(--border); background: ${msg.status === 'unread' ? '#f0f9ff' : 'transparent'}">
+      <td style="padding: 16px;">${new Date(msg.date).toLocaleDateString()}</td>
+      <td style="padding: 16px;">${msg.name}</td>
+      <td style="padding: 16px;">${msg.email}</td>
+      <td style="padding: 16px;">
+        <span class="status-badge status-${msg.status === 'unread' ? 'pending' : 'completed'}">
+          ${msg.status === 'unread' ? 'Non lu' : 'Lu'}
+        </span>
+      </td>
+      <td style="padding: 16px;">
+        <button class="btn-sm btn-secondary" onclick="viewContact('${msg.id}')">👁️ Voir</button>
+        <button class="btn-sm btn-delete" onclick="deleteContact('${msg.id}')">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function viewContact(id) {
+  const msg = contacts.find(c => c.id === id);
+  if (!msg) return;
+
+  alert(`De: ${msg.name}\nEmail: ${msg.email}\nSujet: ${msg.subject}\n\nMessage:\n${msg.message}`);
+
+  if (msg.status === 'unread') {
+    msg.status = 'read';
+    saveContacts();
+    renderContacts();
+    updateDashboard();
+  }
+}
+
+function deleteContact(id) {
+  showConfirmationModal(id, 'contact');
+}
+
+function performContactDeletion(id) {
+  contacts = contacts.filter(c => c.id !== id);
+  saveContacts();
+  renderContacts();
+}
+
+// REALTIME LISTENERS
+function setupRealtimeListeners() {
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'mascarinAppointments') {
+      loadAppointments();
+      updateDashboard();
+    } else if (e.key === 'mascarinRequests') {
+      loadRequests();
+      renderRequests();
+      updateDashboard();
+    } else if (e.key === 'mascarinContacts') {
+      loadContacts();
+      renderContacts();
+      updateDashboard();
+    }
+  });
+}
+
+function updateBadges() {
+  // Requests Badge
+  const pendingRequests = requests.filter(r => r.status === 'pending').length;
+  const requestsBadge = document.getElementById('requests-badge');
+  if (requestsBadge) {
+    requestsBadge.textContent = pendingRequests;
+    requestsBadge.style.display = pendingRequests > 0 ? 'inline-block' : 'none';
+  }
+
+  // Contacts Badge
+  const unreadContacts = contacts.filter(c => c.status === 'unread').length;
+  const contactsBadge = document.getElementById('contacts-badge');
+  if (contactsBadge) {
+    contactsBadge.textContent = unreadContacts;
+    contactsBadge.style.display = unreadContacts > 0 ? 'inline-block' : 'none';
+  }
+}
+
+// Window Assignments
+window.editAppointment = editAppointment;
+window.deleteAppointment = deleteAppointment;
+window.exportAppointments = exportAppointments;
+window.importAppointments = importAppointments;
+window.clearAllData = clearAllData;
+window.showDayAppointments = showDayAppointments;
+window.closeDayModal = closeDayModal;
+window.addAppointmentForDay = addAppointmentForDay;
+window.deleteAppointmentFromDay = deleteAppointmentFromDay;
+window.closeConfirmationModal = closeConfirmationModal;
+window.showNewAppointmentModal = showNewAppointmentModal;
+window.closeAppointmentModal = closeAppointmentModal;
+window.switchView = switchView;
+window.handleLogin = handleLogin;
+window.debugBadges = () => { console.log('Requests:', requests); console.log('Contacts:', contacts); };
+window.showNewClientModal = showNewClientModal;
+window.closeClientModal = closeClientModal;
+window.editClient = editClient;
+window.showNewInvoiceModal = showNewInvoiceModal;
+window.closeInvoiceModal = closeInvoiceModal;
+window.addInvoiceItem = addInvoiceItem;
+window.calculateInvoiceTotals = calculateInvoiceTotals;
+window.handleInvoiceClientChange = handleInvoiceClientChange;
+window.updateInvoiceNumberPrefix = updateInvoiceNumberPrefix;
+window.editInvoice = editInvoice;
+window.deleteInvoice = deleteInvoice;
+window.printInvoice = printInvoice;
+window.loadRequests = () => { fetchRequests(); renderRequests(); };
+window.filterRequests = renderRequests;
+window.convertRequestToAppointment = convertRequestToAppointment;
+window.archiveRequest = archiveRequest;
+window.loadContacts = () => { fetchContacts(); renderContacts(); };
+window.filterContacts = renderContacts;
+window.viewContact = viewContact;
+window.deleteContact = deleteContact;
+window.resetApp = resetApp;
+window.handleRestoreFile = (input) => {
+  // Placeholder for backup-restore.js functionality
+  if (window.handleRestoreFileImpl) window.handleRestoreFileImpl(input);
 };
 window.performRestore = () => {
   if (window.performRestoreImpl) window.performRestoreImpl();
 };
 
-console.log('Admin Dashboard Script Loaded (Full Rewrite v37)');
+console.log('Admin Dashboard Script Loaded (Full Rewrite v61)');
