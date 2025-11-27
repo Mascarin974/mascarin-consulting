@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ADMIN SHORTCUT
   // ================================================
   document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'L' || e.key === 'l')) {
       e.preventDefault();
       window.location.href = './admin-dashboard.html';
     }
