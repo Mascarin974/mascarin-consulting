@@ -357,6 +357,25 @@
                         </div>
 
                         <!-- Day View Modal -->
+                        <div id="notification-toast" class="notification-toast"></div>
+
+                        <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999;">
+                            <button onclick="resetApp()"
+                                style="background: rgba(255, 255, 255, 0.9); border: 1px solid #ccc; padding: 10px 15px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px; color: #333;">
+                                ⚠️ Problème d'affichage ? Réinitialiser
+                            </button>
+                        </div>
+
+                        <!-- Security Modules (load in order) -->
+
+                        <div id="notification-toast" class="notification-toast"></div>
+                        <!-- Security Modules (load in order) -->
+                        <script src="./js/sanitizer.js"></script>
+                        <script src="./js/security.js"></script>
+                        <script src="./js/csrf-protection.js"></script>
+                        <script src="./js/monitoring.js"></script>
+                        <script src="./js/security-init.js"></script>
+
                         <div id="day-modal" class="modal">
                             <div class="modal-content" style="max-width: 900px;">
                                 <div class="modal-header">
@@ -698,33 +717,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div id="notification-toast" class="notification-toast"></div>
-
-                        <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999;">
-                            <button onclick="resetApp()"
-                                style="background: rgba(255, 255, 255, 0.9); border: 1px solid #ccc; padding: 10px 15px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px; color: #333;">
-                                ⚠️ Problème d'affichage ? Réinitialiser
-                            </button>
-                        </div>
-
-                        <!-- Security Modules (load in order) -->
-
-                        <div id="notification-toast" class="notification-toast"></div>
-
-                        <div style="position: fixed; bottom: 10px; right: 10px; z-index: 9999;">
-                            <button onclick="resetApp()"
-                                style="background: rgba(255, 255, 255, 0.9); border: 1px solid #ccc; padding: 10px 15px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 12px; color: #333;">
-                                ⚠️ Problème d'affichage ? Réinitialiser
-                            </button>
-                        </div>
-
-                        <!-- Security Modules (load in order) -->
-                        <script src="./js/sanitizer.js"></script>
-                        <script src="./js/security.js"></script>
-                        <script src="./js/csrf-protection.js"></script>
-                        <script src="./js/monitoring.js"></script>
-                        <script src="./js/security-init.js"></script>
 
                         <!-- Application Scripts -->
                         <script src="./js/backup-restore.js?v=14"></script>
