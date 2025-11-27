@@ -5,9 +5,15 @@ const ADMIN_EMAIL = 'abonnelchristian@hotmail.com';
 const ADMIN_PASSWORD = 'Kheter@admin_masca974';
 
 let appointments = [];
+let invoices = [];
+let clients = [];
+let requests = [];
+let contacts = [];
 let currentView = 'overview';
 let currentDate = new Date();
 let editingAppointmentId = null;
+let editingInvoiceId = null;
+let editingClientId = null;
 let currentSelectedDate = null;
 
 // Initialize app
@@ -112,10 +118,7 @@ function setupEventListeners() {
 }
 
 // State
-let invoices = [];
-let editingInvoiceId = null;
-let clients = [];
-let editingClientId = null;
+// (Moved to top of file)
 
 // Login
 function handleLogin(e) {
@@ -143,6 +146,7 @@ function handleLogout() {
 // Appointment Form Handler
 function handleAppointmentSubmit(e) {
   e.preventDefault();
+  console.log('💾 handleAppointmentSubmit called');
 
   const clientSelect = document.getElementById('client-select');
   let clientName, clientEmail, clientPhone;
@@ -173,11 +177,17 @@ function handleAppointmentSubmit(e) {
     notes: document.getElementById('appointment-notes').value
   };
 
+  console.log('📝 Form Data:', formData);
+  console.log('🆔 Editing ID:', editingAppointmentId);
+
   if (editingAppointmentId) {
     // Update existing
     const index = appointments.findIndex(a => a.id === editingAppointmentId);
     if (index !== -1) {
+      console.log('Updating existing appointment at index:', index);
       appointments[index] = { ...appointments[index], ...formData };
+    } else {
+      console.error('❌ Could not find appointment to update with ID:', editingAppointmentId);
     }
   } else {
     // Create new
@@ -185,6 +195,7 @@ function handleAppointmentSubmit(e) {
       id: Date.now().toString(),
       ...formData
     };
+    console.log('Creating new appointment:', newAppointment);
     appointments.push(newAppointment);
   }
 
@@ -203,23 +214,23 @@ function showNewAppointmentModal() {
 
   // Set default date/time
   const now = new Date();
-  document.getElementById('appointment-date').valueAsDate = now;
-  document.getElementById('appointment-time').value = "09:00";
+  const dateStr = now.toISOString().split('T')[0];
+  const timeStr = now.toTimeString().slice(0, 5);
 
-  // Defaults
-  if (document.getElementById('appointment-duration')) document.getElementById('appointment-duration').value = "60";
-  if (document.getElementById('appointment-status')) document.getElementById('appointment-status').value = "pending";
-
-  if (typeof updateClientSelect === 'function') {
-    updateClientSelect();
-  }
+  if (document.getElementById('appointment-date')) document.getElementById('appointment-date').value = dateStr;
+  if (document.getElementById('appointment-time')) document.getElementById('appointment-time').value = timeStr;
 
   document.getElementById('appointment-modal').classList.add('active');
 }
 
 function editAppointment(id) {
+  console.log('✏️ editAppointment called with ID:', id);
   const apt = appointments.find(a => a.id === id);
-  if (!apt) return;
+  if (!apt) {
+    console.error('❌ Appointment not found:', id);
+    return;
+  }
+  console.log('✅ Appointment found:', apt);
 
   editingAppointmentId = id;
   document.getElementById('modal-title').textContent = 'Modifier le rendez-vous';
@@ -228,18 +239,49 @@ function editAppointment(id) {
     updateClientSelect();
   }
 
+  // Debug element existence
+  const elements = [
+    'client-select', 'appointment-location', 'appointment-type',
+    'appointment-date', 'appointment-time', 'appointment-duration',
+    'appointment-status', 'appointment-notes', 'appointment-modal'
+  ];
+
+  elements.forEach(elId => {
+    if (!document.getElementById(elId)) console.warn(`⚠️ Missing element: ${elId}`);
+  });
+
   if (document.getElementById('client-select')) {
     document.getElementById('client-select').value = apt.clientId || '';
   }
-  if (document.getElementById('appointment-location')) document.getElementById('appointment-location').value = apt.location || '';
-  document.getElementById('appointment-type').value = apt.serviceType;
-  document.getElementById('appointment-date').value = apt.date;
-  document.getElementById('appointment-time').value = apt.time;
-  document.getElementById('appointment-duration').value = apt.duration;
-  document.getElementById('appointment-status').value = apt.status;
-  document.getElementById('appointment-notes').value = apt.notes || '';
+  if (document.getElementById('appointment-location')) {
+    document.getElementById('appointment-location').value = apt.location || '';
+  }
+  if (document.getElementById('appointment-type')) {
+    document.getElementById('appointment-type').value = apt.serviceType;
+  }
+  if (document.getElementById('appointment-date')) {
+    document.getElementById('appointment-date').value = apt.date;
+  }
+  if (document.getElementById('appointment-time')) {
+    document.getElementById('appointment-time').value = apt.time;
+  }
+  if (document.getElementById('appointment-duration')) {
+    document.getElementById('appointment-duration').value = apt.duration || '60';
+  }
+  if (document.getElementById('appointment-status')) {
+    document.getElementById('appointment-status').value = apt.status;
+  }
+  if (document.getElementById('appointment-notes')) {
+    document.getElementById('appointment-notes').value = apt.notes || '';
+  }
 
-  document.getElementById('appointment-modal').classList.add('active');
+  const modal = document.getElementById('appointment-modal');
+  if (modal) {
+    modal.classList.add('active');
+    console.log('✅ Modal opened');
+  } else {
+    console.error('❌ Modal element not found');
+  }
 }
 
 // Navigation
@@ -1206,8 +1248,6 @@ window.deleteClient = deleteClient;
 // REQUESTS MANAGEMENT (Demandes de RDV)
 // ==========================================
 
-let requests = [];
-
 function loadRequests() {
   const saved = localStorage.getItem('mascarinRequests');
   if (saved) {
@@ -1217,6 +1257,17 @@ function loadRequests() {
 
 function saveRequests() {
   localStorage.setItem('mascarinRequests', JSON.stringify(requests));
+}
+
+function loadContacts() {
+  const saved = localStorage.getItem('mascarinContacts');
+  if (saved) {
+    contacts = JSON.parse(saved);
+  }
+}
+
+function saveContacts() {
+  localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
 }
 
 function renderRequests() {
@@ -1286,28 +1337,6 @@ function rejectRequest(id) {
   requests = requests.filter(r => r.id !== id);
   saveRequests();
   renderRequests();
-}
-
-// ==========================================
-// CONTACTS MANAGEMENT (Demandes de contact)
-// ==========================================
-
-let contacts = [];
-
-function loadContacts() {
-  const saved = localStorage.getItem('mascarinContacts');
-  console.log('DEBUG: loadContacts reading localStorage:', saved);
-  if (saved) {
-    contacts = JSON.parse(saved);
-    console.log('DEBUG: loadContacts parsed:', contacts.length, 'contacts');
-  } else {
-    console.log('DEBUG: loadContacts found NO data');
-  }
-}
-
-function saveContacts() {
-  console.log('DEBUG: saveContacts writing to localStorage. Count:', contacts.length);
-  localStorage.setItem('mascarinContacts', JSON.stringify(contacts));
 }
 
 function renderContacts() {
@@ -1518,7 +1547,6 @@ function showNotification(message, type = 'info') {
   }, 5000);
 }
 
-
 // Debug Function
 window.debugBadges = function () {
   const saved = localStorage.getItem('mascarinContacts');
@@ -1608,3 +1636,119 @@ function updateBadges() {
   }
 }
 
+
+// Contact Management Functions
+
+function renderContacts() {
+  const container = document.getElementById('contacts-list');
+  if (!container) return;
+
+  const statusFilter = document.getElementById('contact-status-filter') ? document.getElementById('contact-status-filter').value : 'all';
+
+  let filteredContacts = contacts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  if (statusFilter !== 'all') {
+    filteredContacts = filteredContacts.filter(c => c.status === statusFilter);
+  }
+
+  if (filteredContacts.length === 0) {
+    container.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 32px; color: var(--text-light);">Aucun message.</td></tr>';
+    return;
+  }
+
+  container.innerHTML = filteredContacts.map(contact => `
+    <tr class="contact-item ${contact.status === 'unread' ? 'unread' : ''}" style="${contact.status === 'unread' ? 'font-weight: bold; background-color: rgba(var(--primary-rgb), 0.05);' : ''}">
+      <td style="padding: 16px;">${new Date(contact.date).toLocaleDateString('fr-FR')} ${new Date(contact.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</td>
+      <td style="padding: 16px;">${contact.name}</td>
+      <td style="padding: 16px;">${contact.email}</td>
+      <td style="padding: 16px;">${contact.subject}</td>
+      <td style="padding: 16px;">
+        <span class="status-badge status-${contact.status}" style="padding: 4px 8px; border-radius: 12px; font-size: 0.85em; background: ${getStatusColor(contact.status)}; color: white;">
+          ${getStatusLabel(contact.status)}
+        </span>
+      </td>
+      <td style="padding: 16px;">
+        <button class="btn-icon" onclick="viewContact('${contact.id}')" title="Voir" style="background:none; border:none; cursor:pointer; font-size:1.2em;">👁️</button>
+        <button class="btn-icon" onclick="toggleArchiveContact('${contact.id}')" title="${contact.status === 'archived' ? 'Désarchiver' : 'Archiver'}" style="background:none; border:none; cursor:pointer; font-size:1.2em;">${contact.status === 'archived' ? '📂' : '📦'}</button>
+        <button class="btn-icon delete-btn" onclick="deleteContact('${contact.id}')" title="Supprimer" style="background:none; border:none; cursor:pointer; font-size:1.2em;">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterContacts() {
+  renderContacts();
+}
+
+function getStatusColor(status) {
+  switch (status) {
+    case 'unread': return '#3b82f6'; // Blue
+    case 'read': return '#10b981'; // Green
+    case 'archived': return '#6b7280'; // Gray
+    default: return '#9ca3af';
+  }
+}
+
+function getStatusLabel(status) {
+  switch (status) {
+    case 'unread': return 'Non lu';
+    case 'read': return 'Lu';
+    case 'archived': return 'Archivé';
+    default: return status;
+  }
+}
+
+function viewContact(id) {
+  const contact = contacts.find(c => c.id === id);
+  if (!contact) return;
+
+  // Mark as read if unread
+  if (contact.status === 'unread') {
+    contact.status = 'read';
+    saveContacts();
+    updateBadges();
+    renderContacts();
+  }
+
+  const modalHtml = `
+    <div id="contact-view-modal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000;">
+      <div class="modal-content" style="background: white; padding: 0; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="modal-header" style="padding: 16px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0;">Message de ${contact.name}</h3>
+          <button class="modal-close" onclick="document.getElementById('contact-view-modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+        </div>
+        <div style="padding: 24px;">
+          <div style="margin-bottom: 16px;">
+            <strong>De:</strong> ${contact.name} (${contact.email})<br>
+            <strong>Date:</strong> ${new Date(contact.date).toLocaleString('fr-FR')}<br>
+            <strong>Sujet:</strong> ${contact.subject}
+          </div>
+          <div style="background: #f9fafb; padding: 16px; border-radius: 8px; white-space: pre-wrap; margin-bottom: 24px;">${contact.message}</div>
+          <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px;">
+            <button class="btn-secondary" onclick="document.getElementById('contact-view-modal').remove()" style="padding: 8px 16px; border-radius: 6px; border: 1px solid #ddd; background: white; cursor: pointer;">Fermer</button>
+            <a href="mailto:${contact.email}?subject=Re: ${contact.subject}" class="btn-primary" style="padding: 8px 16px; border-radius: 6px; background: #2563eb; color: white; text-decoration:none; display:inline-block;">Répondre</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function toggleArchiveContact(id) {
+  const contact = contacts.find(c => c.id === id);
+  if (contact) {
+    contact.status = contact.status === 'archived' ? 'read' : 'archived';
+    saveContacts();
+    renderContacts();
+  }
+}
+
+function deleteContact(id) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer ce message ?')) {
+    contacts = contacts.filter(c => c.id !== id);
+    saveContacts();
+    updateBadges();
+    renderContacts();
+  }
+}
