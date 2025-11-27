@@ -429,147 +429,112 @@ ul {
   }
 
   .mobile-menu-btn {
-    display: block;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .about-container,
-  .contact-wrapper,
-  .footer-content {
-    grid-template-columns: 1fr;
+  .modal-header-rdv h2 {
+    margin: 0;
+    color: var(--secondary);
+    font-family: var(--font-heading);
   }
 
-  .hero-actions {
+  .modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: var(--text-light);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .modal-close-btn:hover {
+    color: var(--primary);
+  }
+
+  .rdvform {
+    padding: 24px;
+  }
+
+  .rdv-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .rdv-form .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .rdv-form .form-group {
+    display: flex;
     flex-direction: column;
+    gap: 8px;
   }
 
-  .btn-primary,
-  .btn-secondary {
-    width: 100%;
+  .rdv-form label {
+    font-weight: 500;
+    color: var(--text-main);
+  }
+
+  .rdv-form input,
+  .rdv-form select,
+  .rdv-form textarea {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .rdv-form input:focus,
+  .rdv-form select:focus,
+  .rdv-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .modal-footer-rdv {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .modal-footer-rdv .btn-secondary {
+    color: var(--text-main);
+    border-color: #cbd5e1;
+  }
+
+  .modal-footer-rdv .btn-secondary:hover {
+    background-color: #f1f5f9;
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .rdv-success {
+    padding: 48px 24px;
     text-align: center;
   }
-}
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
+  .success-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .rdv-success h3 {
+    color: var(--secondary);
+    margin-bottom: 8px;
   }
-}
-
-.modal-header-rdv {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-header-rdv h2 {
-  margin: 0;
-  color: var(--secondary);
-  font-family: var(--font-heading);
-}
-
-.modal-close-btn {
-  background: none;
-  border: none;
-  font-size: 32px;
-  color: var(--text-light);
-  cursor: pointer;
-  line-height: 1;
-  transition: color 0.2s;
-}
-
-.modal-close-btn:hover {
-  color: var(--primary);
-}
-
-.rdvform {
-  padding: 24px;
-}
-
-.rdv-form .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-@media (max-width: 640px) {
-  .rdv-form .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-.rdv-form .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.rdv-form label {
-  font-weight: 500;
-  color: var(--text-main);
-}
-
-.rdv-form input,
-.rdv-form select,
-.rdv-form textarea {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
-  font-family: var(--font-body);
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.rdv-form input:focus,
-.rdv-form select:focus,
-.rdv-form textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.modal-footer-rdv {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-footer-rdv .btn-secondary {
-  color: var(--text-main);
-  border-color: #cbd5e1;
-}
-
-.modal-footer-rdv .btn-secondary:hover {
-  background-color: #f1f5f9;
-  color: var(--primary);
-  border-color: var(--primary);
-}
-
-.rdv-success {
-  padding: 48px 24px;
-  text-align: center;
-}
-
-.success-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.rdv-success h3 {
-  color: var(--secondary);
-  margin-bottom: 8px;
-}
 
 }
 
