@@ -63,7 +63,7 @@ function getAllData() {
             clients: JSON.parse(localStorage.getItem('mascarinClients') || '[]'),
             invoices: JSON.parse(localStorage.getItem('mascarinInvoices') || '[]'),
             requests: JSON.parse(localStorage.getItem('mascarinRequests') || '[]'),
-            contacts: JSON.parse(localStorage.getItem('mascarinContactRequests') || '[]')
+            contacts: JSON.parse(localStorage.getItem('mascarinContacts') || '[]')
         }
     };
 }
@@ -324,7 +324,7 @@ function applyRestore(data) {
         if (data.clients) localStorage.setItem('mascarinClients', JSON.stringify(data.clients));
         if (data.invoices) localStorage.setItem('mascarinInvoices', JSON.stringify(data.invoices));
         if (data.requests) localStorage.setItem('mascarinRequests', JSON.stringify(data.requests));
-        if (data.contacts) localStorage.setItem('mascarinContactRequests', JSON.stringify(data.contacts));
+        if (data.contacts) localStorage.setItem('mascarinContacts', JSON.stringify(data.contacts));
 
         // Reload all data safely
         if (typeof window.loadAppointments === 'function') window.loadAppointments();
@@ -347,11 +347,14 @@ function applyRestore(data) {
 
 // Expose functions
 window.performManualBackup = performManualBackup;
+window.downloadBackup = performManualBackup;
 window.handleFileSelect = handleFileSelect;
+window.handleRestoreFile = handleFileSelect;
 window.performRestore = performRestore;
 window.downloadAutoBackup = downloadAutoBackup;
 window.restoreFromAutoBackup = restoreFromAutoBackup;
 window.closeRestoreModal = closeRestoreModal;
 window.confirmRestoreAction = confirmRestoreAction;
+window.confirmRestore = confirmRestoreAction;
 
 console.log('✅ Backup and Restore system loaded');

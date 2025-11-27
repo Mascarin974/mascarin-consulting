@@ -1264,6 +1264,10 @@ function loadContacts() {
   if (saved) {
     contacts = JSON.parse(saved);
   }
+
+  if (currentView === 'contacts') {
+    renderContacts();
+  }
 }
 
 function saveContacts() {
@@ -1641,7 +1645,9 @@ function updateBadges() {
 
 function renderContacts() {
   const container = document.getElementById('contacts-list');
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   const statusFilter = document.getElementById('contact-status-filter') ? document.getElementById('contact-status-filter').value : 'all';
 
@@ -1661,7 +1667,6 @@ function renderContacts() {
       <td style="padding: 16px;">${new Date(contact.date).toLocaleDateString('fr-FR')} ${new Date(contact.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</td>
       <td style="padding: 16px;">${contact.name}</td>
       <td style="padding: 16px;">${contact.email}</td>
-      <td style="padding: 16px;">${contact.subject}</td>
       <td style="padding: 16px;">
         <span class="status-badge status-${contact.status}" style="padding: 4px 8px; border-radius: 12px; font-size: 0.85em; background: ${getStatusColor(contact.status)}; color: white;">
           ${getStatusLabel(contact.status)}

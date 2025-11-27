@@ -309,13 +309,13 @@
                                 <th style="padding: 16px;">Date</th>
                                 <th style="padding: 16px;">Nom</th>
                                 <th style="padding: 16px;">Email</th>
-                                <th style="padding: 16px;">Sujet</th>
                                 <th style="padding: 16px;">Statut</th>
                                 <th style="padding: 16px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="contacts-list">
                             <!-- JS will populate this -->
+
                         </tbody>
                     </table>
                 </div>
@@ -347,6 +347,13 @@
                             <button class="btn-secondary"
                                 onclick="document.getElementById('restore-file').click()">Sélectionner
                                 Fichier</button>
+                            <div style="margin-top: 10px;">
+                                <span id="selected-file-name" style="font-size: 0.9em; color: var(--text-light);">Aucun
+                                    fichier sélectionné</span>
+                            </div>
+                            <button id="restore-btn" class="btn-primary"
+                                style="margin-top: 10px; display: none; width: 100%; background-color: #ef4444;"
+                                onclick="performRestore()">⚠️ Restaurer les données</button>
                         </div>
                     </div>
                 </div>
@@ -464,7 +471,8 @@
             <div style="padding: 24px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h4 style="margin: 0;">Planning de la journée</h4>
-                    <button class="btn-primary" onclick="addAppointmentForDay()">+ Ajouter un RDV</button>
+                    <button class="btn-primary" onclick="addAppointmentForDay()">+ Ajouter un
+                        RDV</button>
                 </div>
                 <div id="day-appointments-list"></div>
             </div>
@@ -477,7 +485,8 @@
             <div style="margin-bottom: 20px;">
                 <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
                 <h3 id="confirmation-title" style="margin-bottom: 8px;">Confirmer la suppression</h3>
-                <p id="confirmation-message" style="color: var(--text-light);">Êtes-vous sûr de vouloir supprimer cet
+                <p id="confirmation-message" style="color: var(--text-light);">Êtes-vous sûr de vouloir
+                    supprimer cet
                     élément ?</p>
             </div>
             <div style="display: flex; gap: 12px; justify-content: center;">
@@ -558,7 +567,8 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h4>Lignes</h4>
-                        <button type="button" class="btn-secondary btn-sm" onclick="addInvoiceItem()">+ Ajouter une
+                        <button type="button" class="btn-secondary btn-sm" onclick="addInvoiceItem()">+
+                            Ajouter une
                             ligne</button>
                     </div>
                     <table style="width: 100%; border-collapse: collapse;">
@@ -697,8 +707,8 @@
     <script src="./js/security-init.js"></script>
 
     <!-- Application Scripts -->
-    <script src="./js/backup-restore.js?v=10"></script>
-    <script src="./js/admin-dashboard.js?v=35"></script>
+    <script src="./js/backup-restore.js?v=14"></script>
+    <script src="./js/admin-dashboard.js?v=36"></script>
 </body>
 
 </html>

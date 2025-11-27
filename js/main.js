@@ -1,3 +1,4 @@
+console.log('main.js loaded');
 document.addEventListener('DOMContentLoaded', () => {
   // Mobile Menu Toggle
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -63,11 +64,15 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
 
       try {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+
         const request = {
           id: 'contact_' + Date.now(),
-          name: document.getElementById('name').value,
-          email: document.getElementById('email').value,
-          message: document.getElementById('message').value,
+          name: name,
+          email: email,
+          message: message,
           status: 'unread',
           date: new Date().toISOString()
         };
