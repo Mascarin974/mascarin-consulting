@@ -342,40 +342,26 @@ ul {
   .rdv-form input,
   .rdv-form select,
   .rdv-form textarea {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-main);
-    font-family: var(--font-body);
-
-    .modal-footer-rdv .btn-secondary {
-      color: var(--text-main);
-      border-color: #cbd5e1;
-    }
-
-    .modal-footer-rdv .btn-secondary:hover {
-      background-color: #f1f5f9;
-      color: var(--primary);
-      border-color: var(--primary);
-    }
-
-    .rdv-success {
-      padding: 48px 24px;
-      text-align: center;
-    }
-
-    .success-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-    }
-
-    .rdv-success h3 {
-      color: var(--secondary);
-      margin-bottom: 8px;
-    }
-
+    color: var(--primary);
+    border-color: var(--primary);
   }
+
+  .rdv-success {
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  .success-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  .rdv-success h3 {
+    color: var(--secondary);
+    margin-bottom: 8px;
+  }
+
+}
 }
 
 /* Hero Section - RESTORED */
