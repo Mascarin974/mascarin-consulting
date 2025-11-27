@@ -2005,6 +2005,7 @@ window.addAppointmentForDay = addAppointmentForDay;
 window.deleteAppointmentFromDay = deleteAppointmentFromDay;
 window.closeConfirmationModal = closeConfirmationModal;
 window.showNewAppointmentModal = showNewAppointmentModal;
+window.closeAppointmentModal = closeAppointmentModal;
 window.switchView = switchView;
 window.handleLogin = handleLogin;
 window.debugBadges = () => { console.log('Requests:', requests); console.log('Contacts:', contacts); };
