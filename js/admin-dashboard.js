@@ -2,7 +2,7 @@
 // Complete appointment management system
 
 const ADMIN_EMAIL = 'abonnelchristian@hotmail.com';
-const ADMIN_PASSWORD = 'Kheter@admin_masca974';
+// Password is now hashed for security
 
 let appointments = [];
 let invoices = [];
@@ -133,13 +133,25 @@ function setupEventListeners() {
 }
 
 // Login
-function handleLogin(e) {
+const ADMIN_PASSWORD_HASH = '0619dbd08e7602f359110ab9aedcf57675f8c7623e0343fc9303fcb8a4ac3309';
+
+// ... (existing code)
+
+// Login
+async function handleLogin(e) {
   e.preventDefault();
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
   const errorEl = document.getElementById('login-error');
 
-  if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+  // Hash the input password
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+  if (email === ADMIN_EMAIL && hashHex === ADMIN_PASSWORD_HASH) {
     sessionStorage.setItem('adminAuthenticated', 'true');
     showDashboard();
   } else {
