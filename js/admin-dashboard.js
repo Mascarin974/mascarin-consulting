@@ -1315,7 +1315,7 @@ function renderRequests() {
           ${req.status === 'processed' ? 'Traitée' : 'En attente'}
         </span>
       </td>
-      <td style="padding: 16px;">
+      <td style="padding: 16px; white-space: nowrap;">
         <button class="btn-sm btn-primary" onclick="convertRequestToAppointment('${req.id}')">📅 Planifier</button>
         <button class="btn-sm btn-secondary" onclick="archiveRequest('${req.id}')" title="Archiver">📁</button>
         <button class="btn-sm btn-danger" onclick="deleteRequest('${req.id}')" title="Supprimer" style="background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️</button>
