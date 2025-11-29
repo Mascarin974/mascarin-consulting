@@ -1470,7 +1470,47 @@ window.showNewAppointmentModal = showNewAppointmentModal;
 window.closeAppointmentModal = closeAppointmentModal;
 window.switchView = switchView;
 window.handleLogin = handleLogin;
-window.debugBadges = () => { console.log('Requests:', requests); console.log('Contacts:', contacts); };
+window.fixData = () => {
+  if (confirm('Cela va réinitialiser les données de test (Demandes et Contacts). Continuer ?')) {
+    const sampleRequests = [
+      {
+        id: 'req_1',
+        date: new Date().toISOString(),
+        name: 'Jean Dupont',
+        email: 'jean.dupont@example.com',
+        phone: '06 12 34 56 78',
+        service: 'conseil',
+        status: 'pending'
+      },
+      {
+        id: 'req_2',
+        date: new Date(Date.now() - 86400000).toISOString(),
+        name: 'Marie Martin',
+        email: 'marie.martin@example.com',
+        phone: '06 98 76 54 32',
+        service: 'formation',
+        status: 'processed'
+      }
+    ];
+
+    const sampleContacts = [
+      {
+        id: 'msg_1',
+        date: new Date().toISOString(),
+        name: 'Pierre Durand',
+        email: 'pierre.durand@example.com',
+        message: 'Bonjour, je souhaiterais avoir plus d\'informations sur vos services.',
+        status: 'unread'
+      }
+    ];
+
+    localStorage.setItem('mascarinRequests', JSON.stringify(sampleRequests));
+    localStorage.setItem('mascarinContacts', JSON.stringify(sampleContacts));
+
+    alert('Données réparées ! La page va se recharger.');
+    location.reload();
+  }
+};
 window.showNewClientModal = showNewClientModal;
 window.closeClientModal = closeClientModal;
 window.editClient = editClient;
