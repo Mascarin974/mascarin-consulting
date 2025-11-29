@@ -1165,3 +1165,125 @@ li.notification-reported strong, li.notification-disapproved strong {
 	background-color: #D31141;
 	color: #ffffff;
 }
+
+/* --- Mascarin Consulting Theme for phpBB --- */
+
+/* Fond général (Bleu Nuit) */
+body {
+    background-color: #0f172a; /* Bleu très sombre */
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    color: #334155; /* Gris texte */
+    font-family: 'Outfit', sans-serif;
+}
+
+/* En-tête (Header) */
+.headerbar {
+    background-color: #020617; /* Fond header encore plus sombre */
+    background-image: none; /* Enlever le dégradé bleu par défaut */
+    color: #ffffff;
+    border-bottom: 2px solid #b45309; /* Bordure Or/Bronze */
+}
+
+/* Titre du forum et description */
+.site_logo {
+    background-image: url('./images/mascarin-logo.png');
+    width: 150px; /* Ajustez selon la taille de votre logo */
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+h1 {
+    color: #ffffff;
+    font-family: 'Playfair Display', serif;
+}
+
+.headerbar .search-header {
+    box-shadow: none;
+}
+
+/* Barres de navigation (Navbar) */
+.navbar {
+    background-color: #1e293b; /* Bleu gris */
+    border-color: #b45309;
+}
+
+.navbar ul.linklist li.selected a {
+    color: #f59e0b; /* Orange/Or actif */
+}
+
+/* Catégories (Forabg) */
+.forabg {
+    background-color: #0f172a;
+    background-image: none;
+    border: 1px solid #b45309;
+    border-radius: 5px;
+}
+
+.forabg .header {
+    background-color: #1e293b;
+    background-image: none;
+}
+
+/* Listes des forums (Forumbg) */
+.forumbg {
+    background-color: #f8fafc; /* Fond clair pour la lisibilité */
+    background-image: none;
+    border: 1px solid #e2e8f0;
+}
+
+/* Titres des catégories */
+li.header dt, li.header dd {
+    color: #f59e0b; /* Or */
+    font-family: 'Playfair Display', serif;
+    font-weight: bold;
+}
+
+/* Liens */
+a:link, a:visited {
+    color: #0f172a; /* Bleu sombre */
+}
+
+a:hover {
+    color: #b45309; /* Bronze au survol */
+    text-decoration: none;
+}
+
+/* Boutons (Nouveau sujet, Répondre) */
+.button {
+    background-color: #b45309 !important; /* Bronze */
+    background-image: none !important;
+    color: #ffffff !important;
+    border: none;
+    border-radius: 2px;
+    box-shadow: none;
+    font-family: 'Outfit', sans-serif;
+    text-shadow: none;
+}
+
+.button:hover {
+    background-color: #f59e0b !important; /* Or au survol */
+    color: #0f172a !important;
+}
+
+/* Contenu des messages */
+.post {
+    background-color: #ffffff;
+    border-radius: 5px;
+    border: 1px solid #e2e8f0;
+}
+
+.postprofile {
+    border-right: 1px solid #e2e8f0;
+}
+
+.content {
+    color: #334155;
+    font-size: 1.05rem;
+}
+
+/* Pied de page */
+.copyright {
+    color: #94a3b8;
+}
+
