@@ -155,166 +155,11 @@ function handleLogout() {
 }
 
 
-// Appointment Form Handler
-function handleAppointmentSubmit(e) {
-  e.preventDefault();
-  console.log('💾 handleAppointmentSubmit called');
+// handleAppointmentSubmit removed (duplicate)
 
-  const clientSelect = document.getElementById('client-select');
-  let clientName, clientEmail, clientPhone;
+// showNewAppointmentModal removed (duplicate)
 
-  if (clientSelect && clientSelect.value) {
-    const selectedOption = clientSelect.options[clientSelect.selectedIndex];
-    clientName = selectedOption.text;
-    clientEmail = selectedOption.dataset.email || '';
-    clientPhone = selectedOption.dataset.phone || '';
-  } else {
-    // Fallback if manual entry is allowed or for legacy support
-    clientName = document.getElementById('client-name') ? document.getElementById('client-name').value : '';
-    clientEmail = document.getElementById('client-email') ? document.getElementById('client-email').value : '';
-    clientPhone = document.getElementById('client-phone') ? document.getElementById('client-phone').value : '';
-  }
-
-  const formData = {
-    clientName: clientName,
-    clientEmail: clientEmail,
-    clientPhone: clientPhone,
-    clientId: clientSelect ? clientSelect.value : null,
-    location: document.getElementById('appointment-location') ? document.getElementById('appointment-location').value : '',
-    serviceType: document.getElementById('appointment-type').value,
-    date: document.getElementById('appointment-date').value,
-    time: document.getElementById('appointment-time').value,
-    duration: document.getElementById('appointment-duration') ? document.getElementById('appointment-duration').value : '60',
-    status: document.getElementById('appointment-status') ? document.getElementById('appointment-status').value : 'pending',
-    notes: document.getElementById('appointment-notes').value
-  };
-
-  console.log('📝 Form Data:', formData);
-  console.log('🆔 Editing ID:', editingAppointmentId);
-
-  if (editingAppointmentId) {
-    // Update existing
-    const index = appointments.findIndex(a => a.id === editingAppointmentId);
-    if (index !== -1) {
-      console.log('Updating existing appointment at index:', index);
-      appointments[index] = { ...appointments[index], ...formData };
-    } else {
-      console.error('❌ Could not find appointment to update with ID:', editingAppointmentId);
-    }
-  } else {
-    // Create new
-    const newAppointment = {
-      id: Date.now().toString(),
-      ...formData
-    };
-    console.log('Creating new appointment:', newAppointment);
-    appointments.push(newAppointment);
-  }
-
-  saveAppointments();
-  updateDashboard();
-
-  document.getElementById('appointment-modal').classList.remove('active');
-  document.getElementById('appointment-form').reset();
-  editingAppointmentId = null;
-}
-
-function showNewAppointmentModal() {
-  console.log('🚀 showNewAppointmentModal called');
-  editingAppointmentId = null;
-
-  const title = document.getElementById('modal-title');
-  const form = document.getElementById('appointment-form');
-  const modal = document.getElementById('appointment-modal');
-
-  console.log('Elements found:', { title: !!title, form: !!form, modal: !!modal });
-
-  if (title) title.textContent = 'Nouveau Rendez-vous';
-  if (form) form.reset();
-
-  if (typeof updateClientSelect === 'function') {
-    console.log('Calling updateClientSelect...');
-    updateClientSelect();
-  }
-
-  // Set default date/time
-  const now = new Date();
-  const dateStr = now.toISOString().split('T')[0];
-  const timeStr = now.toTimeString().slice(0, 5);
-
-  if (document.getElementById('appointment-date')) document.getElementById('appointment-date').value = dateStr;
-  if (document.getElementById('appointment-time')) document.getElementById('appointment-time').value = timeStr;
-
-  if (modal) {
-    console.log('Adding active class to modal');
-    modal.classList.add('active');
-    console.log('Modal classList:', modal.classList.toString());
-    console.log('Modal style display:', window.getComputedStyle(modal).display);
-  } else {
-    console.error('❌ Modal element not found!');
-  }
-}
-
-function editAppointment(id) {
-  console.log('✏️ editAppointment called with ID:', id);
-  const apt = appointments.find(a => a.id === id);
-  if (!apt) {
-    console.error('❌ Appointment not found:', id);
-    return;
-  }
-  console.log('✅ Appointment found:', apt);
-
-  editingAppointmentId = id;
-  document.getElementById('modal-title').textContent = 'Modifier le rendez-vous';
-
-  if (typeof updateClientSelect === 'function') {
-    updateClientSelect();
-  }
-
-  // Debug element existence
-  const elements = [
-    'client-select', 'appointment-location', 'appointment-type',
-    'appointment-date', 'appointment-time', 'appointment-duration',
-    'appointment-status', 'appointment-notes', 'appointment-modal'
-  ];
-
-  elements.forEach(elId => {
-    if (!document.getElementById(elId)) console.warn(`⚠️ Missing element: ${elId}`);
-  });
-
-  if (document.getElementById('client-select')) {
-    document.getElementById('client-select').value = apt.clientId || '';
-  }
-  if (document.getElementById('appointment-location')) {
-    document.getElementById('appointment-location').value = apt.location || '';
-  }
-  if (document.getElementById('appointment-type')) {
-    document.getElementById('appointment-type').value = apt.serviceType;
-  }
-  if (document.getElementById('appointment-date')) {
-    document.getElementById('appointment-date').value = apt.date;
-  }
-  if (document.getElementById('appointment-time')) {
-    document.getElementById('appointment-time').value = apt.time;
-  }
-  if (document.getElementById('appointment-duration')) {
-    document.getElementById('appointment-duration').value = apt.duration || '60';
-  }
-  if (document.getElementById('appointment-status')) {
-    document.getElementById('appointment-status').value = apt.status;
-  }
-  if (document.getElementById('appointment-notes')) {
-    document.getElementById('appointment-notes').value = apt.notes || '';
-  }
-
-  const modal = document.getElementById('appointment-modal');
-  if (modal) {
-    modal.classList.add('active');
-    console.log('✅ Modal opened');
-  } else {
-    console.error('❌ Modal element not found');
-  }
-}
+// editAppointment removed (duplicate)
 
 // Navigation
 function switchView(view) {
@@ -653,9 +498,7 @@ function renderAppointmentsTable() {
   `;
 }
 
-function closeAppointmentModal() {
-  document.getElementById('appointment-modal').classList.remove('active');
-}
+// closeAppointmentModal removed (duplicate)
 
 // Data Management
 function loadAppointments() {
@@ -812,6 +655,7 @@ function performDayDeletion(id) {
 
 // APPOINTMENT MODAL & ACTIONS
 function showNewAppointmentModal() {
+  console.log('🚀 showNewAppointmentModal called (Version 2)');
   editingAppointmentId = null;
   document.getElementById('modal-title').textContent = 'Nouveau Rendez-vous';
   document.getElementById('appointment-form').reset();
@@ -830,6 +674,7 @@ function closeAppointmentModal() {
 
 function handleAppointmentSubmit(e) {
   e.preventDefault();
+  console.log('💾 handleAppointmentSubmit called (Version 2)');
 
   const clientSelect = document.getElementById('client-select');
   let clientId = clientSelect.value;
@@ -900,6 +745,7 @@ function handleAppointmentSubmit(e) {
 }
 
 function editAppointment(id) {
+  console.log('✏️ editAppointment called (Version 2) with ID:', id);
   const apt = appointments.find(a => a.id === id);
   if (!apt) return;
 
