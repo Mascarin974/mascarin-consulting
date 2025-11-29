@@ -1549,6 +1549,32 @@ window.filterContacts = renderContacts;
 window.viewContact = viewContact;
 window.deleteContact = deleteContact;
 window.resetApp = resetApp;
+// Backup System
+function downloadBackup() {
+  const backup = {
+    appointments,
+    clients,
+    invoices,
+    requests,
+    contacts,
+    exportDate: new Date().toISOString()
+  };
+
+  const dataStr = JSON.stringify(backup, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mascarin-backup-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Expose to window
+window.downloadBackup = downloadBackup;
+
 window.handleRestoreFile = (input) => {
   // Placeholder for backup-restore.js functionality
   if (window.handleRestoreFileImpl) window.handleRestoreFileImpl(input);
