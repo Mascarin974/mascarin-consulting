@@ -205,9 +205,114 @@ ul {
   padding: 100px 0;
 }
 
-font-weight: 700;
-color: var(--secondary);
-font-family: var(--font-heading);
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.section-subtitle {
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+/* Services */
+.services {
+  background: linear-gradient(180deg, var(--primary) 0%, #1e293b 100%);
+  color: var(--bg-white);
+  position: relative;
+}
+
+.services .section-title {
+  color: var(--bg-white);
+}
+
+.services .section-subtitle {
+  color: var(--text-light);
+  opacity: 0.9;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+  position: relative;
+  z-index: 2;
+}
+
+.service-card {
+  padding: 40px;
+  background-color: var(--bg-white);
+  border-radius: 8px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(180, 83, 9, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--secondary), var(--accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(180, 83, 9, 0.3);
+}
+
+.service-card:hover::before {
+  transform: scaleX(1);
+}
+
+.service-icon {
+  font-size: 3rem;
+  margin-bottom: 25px;
+  color: var(--secondary);
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.service-card h3 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.service-card p {
+  color: var(--text-main);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.stats {
+  display: flex;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--secondary);
+  font-family: var(--font-heading);
 }
 
 .stat-label {
