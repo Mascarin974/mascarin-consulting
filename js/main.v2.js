@@ -1,4 +1,4 @@
-console.log('main.js loaded');
+console.log('main.v2.js loaded - FIX APPLIED');
 document.addEventListener('DOMContentLoaded', () => {
   // Mobile Menu Toggle
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
