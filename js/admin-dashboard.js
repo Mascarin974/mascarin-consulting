@@ -1222,14 +1222,21 @@ function printInvoice(id) {
         </style>
       </head>
       <body>
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px;">
+          <img src="./logo-mascarin.png" alt="Mascarin Consulting" style="max-width: 250px; height: auto;">
+          <div style="margin-top: 10px; font-size: 12px; color: #555;">
+            <strong>Mascarin Consulting</strong><br>
+            RCS : 953 401 874 | SIRET : 953 401 874 00011
+          </div>
+        </div>
+
         <div class="header">
           <div>
             <div class="title">${inv.type === 'invoice' ? 'FACTURE' : 'DEVIS'}</div>
             <div>${inv.number}</div>
           </div>
           <div style="text-align: right;">
-            <div><strong>Mascarin Consulting</strong></div>
-            <div>${formatDate(inv.date)}</div>
+            <div>Date: ${formatDate(inv.date)}</div>
           </div>
         </div>
         
