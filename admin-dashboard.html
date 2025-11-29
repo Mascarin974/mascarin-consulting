@@ -343,36 +343,6 @@
                                 <h3>Restauration</h3>
                                 <p style="margin-bottom: 15px; color: var(--text-light);">Restaurer les données depuis
                                     un fichier</p>
-                                <input type="file" id="restore-file" accept=".json" style="display: none;"
-                                    onchange="handleRestoreFile(this)">
-                                <button class="btn-secondary"
-                                    onclick="document.getElementById('restore-file').click()">Sélectionner
-                                    Fichier</button>
-                                <div style="margin-top: 10px;">
-                                    <span id="selected-file-name"
-                                        style="font-size: 0.9em; color: var(--text-light);">Aucun
-                                        fichier sélectionné</span>
-                                    </h3>
-                                    <p id="confirmation-message" style="color: var(--text-light);">Êtes-vous sûr de
-                                        vouloir
-                                        supprimer cet
-                                        élément ?</p>
-                                </div>
-                                <div style="display: flex; gap: 12px; justify-content: center;">
-                                    <button class="btn-secondary" onclick="closeConfirmationModal()">Annuler</button>
-                                    <button id="confirm-action-btn" class="btn-primary"
-                                        style="background-color: #ef4444;">Supprimer</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Invoice/Quote Modal -->
-                        <div id="invoice-modal" class="modal">
-                            <div class="modal-content" style="max-width: 900px;">
-                                <div class="modal-header">
-                                    <h3 id="invoice-modal-title">Nouveau Document</h3>
-                                    <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
-                                </div>
                                 <form id="invoice-form">
                                     <input type="hidden" id="invoice-id">
 
