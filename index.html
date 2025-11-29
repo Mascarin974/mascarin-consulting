@@ -33,6 +33,7 @@
             <li><a href="#services" class="nav-link">Services</a></li>
             <li><a href="#about" class="nav-link">À Propos</a></li>
             <li><a href="#contact" class="nav-link">Contact</a></li>
+            <li><a href="#forum" class="nav-link">Forum</a></li>
           </ul>
           <button class="btn-primary nav-cta">Prendre RDV</button>
         </nav>
@@ -158,124 +159,111 @@
               </div>
               <div class="form-group">
                 <label for="message">Message</label>
-                <textarea id="message" rows="4" placeholder="Comment pouvons-nous vous aider ?"></textarea>
+                class="logo-img"></a>
+                <p>Partenaire de votre réussite.</p>
               </div>
-              <button type="submit" class="btn-primary full-width">Envoyer</button>
+              <div class="footer-col">
+                <h4>Liens</h4>
+                <ul>
+                  <li><a href="#home">Accueil</a></li>
+                  <li><a href="#services">Services</a></li>
+                  <li><a href="#about">À Propos</a></li>
+                  <li><a href="#contact">Contact</a></li>
+                </ul>
+              </div>
+              <div class="footer-col">
+                <h4>Légal</h4>
+                <ul>
+                  <li>
+                    <a href="javascript:void(0)" id="legal-link"
+                      onclick="const el = document.getElementById('legal-content'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">Mentions
+                      légales</a>
+                    <div id="legal-content" style="display: none; font-size: 0.8em; margin-top: 5px; color: #ccc;">
+                      <p style="margin: 2px 0;"><strong>Mascarin Consulting</strong></p>
+                      <p style="margin: 2px 0;">RCS : 953 401 874</p>
+                      <p style="margin: 2px 0;">SIRET : 953 401 874 00011</p>
+                    </div>
+                  </li>
+                  <li><a href="#">Confidentialité</a></li>
+                </ul>
+              </div>
+          </div>
+          <div class="footer-bottom">
+            <p>&copy; 2024 Mascarin Consulting. Tous droits réservés.</p>
+          </div>
+          </footer>
+        </div>
+
+        <!-- Admin Panel Container (injected dynamically) -->
+        <div id="admin-container"></div>
+
+        <script src="./js/main.js?v=41"></script>
+
+
+
+        <!-- Appointment Request Modal -->
+        <div id="rdv-modal" class="modal-overlay">
+          <div class="modal-content-rdv">
+            <form id="rdv-form" class="rdv-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rdv-name">Nom complet *</label>
+                  <input type="text" id="rdv-name" required placeholder="Votre nom">
+                </div>
+                <div class="form-group">
+                  <label for="rdv-email">Email *</label>
+                  <input type="email" id="rdv-email" required placeholder="votre@email.com">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rdv-phone">Téléphone *</label>
+                  <input type="tel" id="rdv-phone" required placeholder="0692 XX XX XX">
+                </div>
+                <div class="form-group">
+                  <label for="rdv-service">Type de service *</label>
+                  <select id="rdv-service" required>
+                    <option value="">-- Choisir --</option>
+                    <option value="formation">Formation</option>
+                    <option value="conseil">Conseil</option>
+                    <option value="audit">Audit</option>
+                    <option value="management">Management de transition</option>
+                    <option value="autre">Autre</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rdv-date">Date souhaitée *</label>
+                  <input type="date" id="rdv-date" required>
+                </div>
+                <div class="form-group">
+                  <label for="rdv-time">Heure souhaitée *</label>
+                  <input type="time" id="rdv-time" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="rdv-message">Message</label>
+                <textarea id="rdv-message" rows="4" placeholder="Décrivez brièvement votre besoin..."></textarea>
+              </div>
+
+              <div class="modal-footer-rdv">
+                <button type="button" class="btn-secondary" id="cancel-rdv">Annuler</button>
+                <button type="submit" class="btn-primary">Envoyer la demande</button>
+              </div>
             </form>
+
+            <div id="rdv-success" class="rdv-success" style="display: none;">
+              <div class="success-icon">✅</div>
+              <h3>Demande envoyée !</h3>
+              <p>Nous vous contacterons dans les plus brefs délais.</p>
+              <button class="btn-primary" id="close-success">Fermer</button>
+            </div>
           </div>
         </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <div class="container footer-content">
-        <div class="footer-col">
-          <a href="#" class="logo footer-logo"><img src="./public/mascarin-logo.png" alt="Mascarin Consulting"
-              class="logo-img"></a>
-          <p>Partenaire de votre réussite.</p>
-        </div>
-        <div class="footer-col">
-          <h4>Liens</h4>
-          <ul>
-            <li><a href="#home">Accueil</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#about">À Propos</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h4>Légal</h4>
-          <ul>
-            <li>
-              <a href="javascript:void(0)" id="legal-link"
-                onclick="const el = document.getElementById('legal-content'); el.style.display = el.style.display === 'none' ? 'block' : 'none';">Mentions
-                légales</a>
-              <div id="legal-content" style="display: none; font-size: 0.8em; margin-top: 5px; color: #ccc;">
-                <p style="margin: 2px 0;"><strong>Mascarin Consulting</strong></p>
-                <p style="margin: 2px 0;">RCS : 953 401 874</p>
-                <p style="margin: 2px 0;">SIRET : 953 401 874 00011</p>
-              </div>
-            </li>
-            <li><a href="#">Confidentialité</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 Mascarin Consulting. Tous droits réservés.</p>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Admin Panel Container (injected dynamically) -->
-  <div id="admin-container"></div>
-
-  <script src="./js/main.js?v=41"></script>
-
-
-
-  <!-- Appointment Request Modal -->
-  <div id="rdv-modal" class="modal-overlay">
-    <div class="modal-content-rdv">
-      <form id="rdv-form" class="rdv-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="rdv-name">Nom complet *</label>
-            <input type="text" id="rdv-name" required placeholder="Votre nom">
-          </div>
-          <div class="form-group">
-            <label for="rdv-email">Email *</label>
-            <input type="email" id="rdv-email" required placeholder="votre@email.com">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="rdv-phone">Téléphone *</label>
-            <input type="tel" id="rdv-phone" required placeholder="0692 XX XX XX">
-          </div>
-          <div class="form-group">
-            <label for="rdv-service">Type de service *</label>
-            <select id="rdv-service" required>
-              <option value="">-- Choisir --</option>
-              <option value="formation">Formation</option>
-              <option value="conseil">Conseil</option>
-              <option value="audit">Audit</option>
-              <option value="management">Management de transition</option>
-              <option value="autre">Autre</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="rdv-date">Date souhaitée *</label>
-            <input type="date" id="rdv-date" required>
-          </div>
-          <div class="form-group">
-            <label for="rdv-time">Heure souhaitée *</label>
-            <input type="time" id="rdv-time" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="rdv-message">Message</label>
-          <textarea id="rdv-message" rows="4" placeholder="Décrivez brièvement votre besoin..."></textarea>
-        </div>
-
-        <div class="modal-footer-rdv">
-          <button type="button" class="btn-secondary" id="cancel-rdv">Annuler</button>
-          <button type="submit" class="btn-primary">Envoyer la demande</button>
-        </div>
-      </form>
-
-      <div id="rdv-success" class="rdv-success" style="display: none;">
-        <div class="success-icon">✅</div>
-        <h3>Demande envoyée !</h3>
-        <p>Nous vous contacterons dans les plus brefs délais.</p>
-        <button class="btn-primary" id="close-success">Fermer</button>
-      </div>
-    </div>
-  </div>
 
 </body>
 
