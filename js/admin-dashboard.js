@@ -1317,7 +1317,8 @@ function renderRequests() {
       </td>
       <td style="padding: 16px;">
         <button class="btn-sm btn-primary" onclick="convertRequestToAppointment('${req.id}')">📅 Planifier</button>
-        <button class="btn-sm btn-secondary" onclick="archiveRequest('${req.id}')">📁</button>
+        <button class="btn-sm btn-secondary" onclick="archiveRequest('${req.id}')" title="Archiver">📁</button>
+        <button class="btn-sm btn-danger" onclick="deleteRequest('${req.id}')" title="Supprimer" style="background-color: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️</button>
       </td>
     </tr>
   `).join('');
@@ -1345,6 +1346,14 @@ function archiveRequest(id) {
   const req = requests.find(r => r.id === id);
   if (req) {
     req.status = 'archived';
+    saveRequests();
+    renderRequests();
+  }
+}
+
+function deleteRequest(id) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cette demande ?')) {
+    requests = requests.filter(r => r.id !== id);
     saveRequests();
     renderRequests();
   }
@@ -1527,6 +1536,7 @@ window.loadRequests = () => { fetchRequests(); renderRequests(); };
 window.filterRequests = renderRequests;
 window.convertRequestToAppointment = convertRequestToAppointment;
 window.archiveRequest = archiveRequest;
+window.deleteRequest = deleteRequest;
 window.loadContacts = () => { fetchContacts(); renderContacts(); };
 window.filterContacts = renderContacts;
 window.viewContact = viewContact;

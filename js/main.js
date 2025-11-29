@@ -176,15 +176,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Get form data
       const request = {
         id: 'request_' + Date.now(),
-        clientName: document.getElementById('rdv-name').value,
-        clientEmail: document.getElementById('rdv-email').value,
-        clientPhone: document.getElementById('rdv-phone').value,
-        serviceType: document.getElementById('rdv-service').value,
+        name: document.getElementById('rdv-name').value,
+        email: document.getElementById('rdv-email').value,
+        phone: document.getElementById('rdv-phone').value,
+        service: document.getElementById('rdv-service').value,
         preferredDate: document.getElementById('rdv-date').value,
         preferredTime: document.getElementById('rdv-time').value,
         message: document.getElementById('rdv-message').value,
         status: 'pending',
-        createdAt: new Date().toISOString()
+        date: new Date().toISOString()
       };
 
       // Get existing requests from localStorage
